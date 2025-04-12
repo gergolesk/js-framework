@@ -1,34 +1,44 @@
 import { createElement } from '../framework/utils/dom.js';
-import { useState, subscribe } from '../framework/state.js';
 import { render } from '../framework/index.js';
-import { createComponent } from '../framework/core/component.js';
+import { defineRoutes, RouterView, navigate, setNotFound } from '../framework/router.js';
 
-function Counter({ name }) {
-  const [count, setCount] = useState(name, 0);
-
-  return createElement('div', { style: { textAlign: 'center', margin: '10px' } },
-    createElement('h2', {}, `${name}: ${count}`),
-    createElement('button', { onClick: () => setCount(count + 1) }, '➕'),
-    createElement('button', { onClick: () => setCount(count - 1) }, '➖')
-  );
-}
-
-function App() {
-  const CounterA = createComponent(Counter, { name: 'Apples' });
-  const CounterB = createComponent(Counter, { name: 'Bananas' });
-
+// Компоненты страниц
+function HomePage() {
   return createElement('div', {},
-    createElement('h1', {}, 'My Fruit Counter 🍌🍎'),
-    CounterA(),
-    CounterB()
+    createElement('h1', {}, '🏠 Home'),
+    createElement('button', { onClick: () => navigate('/about') }, 'Go to About')
   );
 }
 
-const root = document.getElementById('app');
-
-function rerender() {
-  render(App, root);
+function AboutPage() {
+  return createElement('div', {},
+    createElement('h1', {}, 'ℹ️ About'),
+    createElement('button', { onClick: () => navigate('/') }, 'Go Home')
+  );
 }
 
-subscribe(rerender);
-rerender();
+// Необязательная 404-страница
+function NotFoundPage() {
+  return createElement('div', {},
+    createElement('h1', {}, '❌ 404'),
+    createElement('button', { onClick: () => navigate('/') }, 'Back to Home')
+  );
+}
+
+// Настройка маршрутов
+defineRoutes({
+  '/': HomePage,
+  '/about': AboutPage,
+});
+setNotFound(NotFoundPage);
+
+// Приложение
+function App() {
+  return createElement('div', {},
+    RouterView()
+  );
+}
+
+// Рендерим
+const root = document.getElementById('app');
+render(App, root);
