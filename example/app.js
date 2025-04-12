@@ -2,13 +2,15 @@ import { createElement } from '../framework/utils/dom.js';
 import { render } from '../framework/index.js';
 import { defineRoutes, RouterView, navigate, setNotFound } from '../framework/router.js';
 import { get } from '../framework/http.js';
+import { createVirtualList } from '../framework/utils/virtual-list.js';
 
 // Компоненты страниц
 function HomePage() {
     return createElement('div', {},
       createElement('h1', {}, '🏠 Home'),
       createElement('button', { onClick: () => navigate('/about') }, 'Go to About'),
-      createElement('button', { onClick: () => navigate('/users') }, 'Load Users')
+      createElement('button', { onClick: () => navigate('/users') }, 'Load Users'),
+      createElement('button', { onClick: () => navigate('/big-list') }, 'Big list')
     );
 }
 
@@ -29,10 +31,12 @@ function NotFoundPage() {
 
 // Настройка маршрутов
 defineRoutes({
-    '/': HomePage,
-    '/about': AboutPage,
-    '/users': UsersPage,
-  });
+  '/': HomePage,
+  '/about': AboutPage,
+  '/users': UsersPage,
+  '/big-list': BigListPage,
+});
+
 setNotFound(NotFoundPage);
 
 // Приложение
@@ -69,5 +73,23 @@ function UsersPage() {
       });
   
     return container;
+}
+
+function BigListPage() {
+  const items = Array.from({ length: 10000 }, (_, i) => `Item #${i + 1}`);
+
+  return createVirtualList({
+    items,
+    itemHeight: 30,
+    renderItem: (item, i) =>
+      createElement('div', {
+        style: {
+          height: '30px',
+          padding: '5px',
+          borderBottom: '1px solid #eee',
+          background: i % 2 === 0 ? '#fafafa' : '#fff',
+        },
+      }, item),
+  });
 }
 
