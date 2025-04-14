@@ -21,3 +21,31 @@ export function subscribe(listener) {
 export function unsubscribe(listener) {
   listeners.delete(listener);
 }
+
+export function createState(initialValue) {
+  let value = initialValue;
+  const listeners = new Set();
+
+  const notify = () => {
+    listeners.forEach(listener => listener(value));
+  };
+
+  const state = {
+    get value() {
+      return value;
+    },
+    set(valueOrFn) {
+      const newValue = typeof valueOrFn === 'function' ? valueOrFn(value) : valueOrFn;
+      if (newValue !== value) {
+        value = newValue;
+        notify();
+      }
+    },
+    subscribe(fn) {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    }
+  };
+
+  return state;
+}
