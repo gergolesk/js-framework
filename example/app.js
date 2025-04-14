@@ -54,7 +54,9 @@ render(App, root);
 function UsersPage() {
     const container = createElement('div', {}, createElement('h1', {}, '👥 Users'));
     const loading = createElement('p', {}, 'Loading...');
+    const homeButton = createElement('button', { onClick: () => navigate('/') }, 'Back to Home');
     container.appendChild(loading);
+    container.appendChild(homeButton);
   
     get('https://jsonplaceholder.typicode.com/users')
       .then(users => {
@@ -71,7 +73,8 @@ function UsersPage() {
       .catch(() => {
         loading.textContent = 'Failed to load users.';
       });
-  
+    
+    container.appendChild(homeButton);
     return container;
 }
 
