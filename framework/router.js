@@ -29,10 +29,34 @@ function NotFound() {
 
 let root = null;
 
+/*
 function rerender() {
   if (!root || !currentComponent) return;
   root.innerHTML = '';
   root.appendChild(currentComponent());
+}
+  */
+
+function rerender() {
+  if (!root || !currentComponent) return;
+
+  const active = document.activeElement;
+  const selectionStart = active?.selectionStart;
+  const selectionEnd = active?.selectionEnd;
+  const id = active?.id;
+
+  root.innerHTML = '';
+  root.appendChild(currentComponent());
+
+  if (id) {
+    const restored = document.getElementById(id);
+    if (restored) {
+      restored.focus();
+      if (restored.setSelectionRange && selectionStart !== null) {
+        restored.setSelectionRange(selectionStart, selectionEnd);
+      }
+    }
+  }
 }
 
 export function RouterView() {
