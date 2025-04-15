@@ -7,7 +7,7 @@ This project consists of a custom frontend framework written in vanilla JavaScri
 ## Structure
 
 - `framework/` – the `dot-js` framework
-- `example/` – the ToDo application built with `dot-js`
+- `ToDoApp/` – the ToDo application built with `dot-js`
 - `README.md` – root documentation
 
 ## Features
