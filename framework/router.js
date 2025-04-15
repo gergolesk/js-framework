@@ -1,49 +1,49 @@
 import { subscribe } from './state.js';
 
 let routes = {};
-let notFoundComponent = () => document.createTextNode('404 - Not Found');
+let currentComponent = null;
 
 export function defineRoutes(routeMap) {
   routes = routeMap;
 }
 
-export function setNotFound(component) {
-  notFoundComponent = component;
-}
-
 export function navigate(path) {
-  window.history.pushState({}, '', path);
-  notifySubscribers();
+  window.location.hash = path;
 }
 
-function getCurrentPath() {
-  return window.location.pathname;
+function getPath() {
+  return window.location.hash.replace(/^#/, '') || '/';
 }
 
-function notifySubscribers() {
-  subscribers.forEach((fn) => fn(getCurrentPath()));
+function updateView() {
+  const Component = routes[getPath()];
+  currentComponent = Component || NotFound;
+  rerender();
 }
 
-const subscribers = new Set();
+function NotFound() {
+  const el = document.createElement('h1');
+  el.textContent = '404 - Not Found';
+  return el;
+}
 
-export function onRouteChange(listener) {
-  subscribers.add(listener);
-  window.addEventListener('popstate', () => listener(getCurrentPath()));
+let root = null;
+
+function rerender() {
+  if (!root || !currentComponent) return;
+  root.innerHTML = '';
+  root.appendChild(currentComponent());
 }
 
 export function RouterView() {
-  let currentPath = getCurrentPath();
-  let currentComponent = routes[currentPath] || notFoundComponent;
-
   const container = document.createElement('div');
+  root = container;
+
+  const Component = routes[getPath()];
+  currentComponent = Component || NotFound;
   container.appendChild(currentComponent());
 
-  onRouteChange((newPath) => {
-    currentPath = newPath;
-    currentComponent = routes[currentPath] || notFoundComponent;
-    container.innerHTML = '';
-    container.appendChild(currentComponent());
-  });
+  window.addEventListener('hashchange', updateView);
 
   return container;
 }

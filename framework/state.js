@@ -26,24 +26,17 @@ export function createState(initialValue) {
   let value = initialValue;
   const listeners = new Set();
 
-  const notify = () => {
-    listeners.forEach(listener => listener(value));
-  };
-
   const state = {
     get value() {
       return value;
     },
-    set(valueOrFn) {
-      const newValue = typeof valueOrFn === 'function' ? valueOrFn(value) : valueOrFn;
-      if (newValue !== value) {
-        value = newValue;
-        notify();
-      }
+    set: (newValue) => {
+      value = newValue;
+      listeners.forEach(listener => listener(value));
     },
-    subscribe(fn) {
-      listeners.add(fn);
-      return () => listeners.delete(fn);
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     }
   };
 
