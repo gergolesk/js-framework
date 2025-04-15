@@ -29,13 +29,6 @@ function NotFound() {
 
 let root = null;
 
-/*
-function rerender() {
-  if (!root || !currentComponent) return;
-  root.innerHTML = '';
-  root.appendChild(currentComponent());
-}
-  */
 
 function rerender() {
   if (!root || !currentComponent) return;

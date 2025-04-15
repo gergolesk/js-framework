@@ -32,6 +32,7 @@ export default function TodoApp() {
   return createElement('div', { className: 'todo-app', style: 'padding: 1rem; max-width: 400px; margin: auto;' },
     createElement('h2', {}, 'Todo List'),
     createElement('input', {
+      id: 'new-task',
       placeholder: 'New task...',
       value: inputValue.value,
       onInput: (e) => inputValue.set(e.target.value),
