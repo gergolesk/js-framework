@@ -45,5 +45,7 @@ export function RouterView() {
 
   window.addEventListener('hashchange', updateView);
 
+  subscribe(updateView);
+
   return container;
 }

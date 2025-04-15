@@ -22,6 +22,7 @@ export function unsubscribe(listener) {
   listeners.delete(listener);
 }
 
+/*
 export function createState(initialValue) {
   let value = initialValue;
   const listeners = new Set();
@@ -38,7 +39,21 @@ export function createState(initialValue) {
       listeners.add(listener);
       return () => listeners.delete(listener);
     }
-  };
+  };  
 
+  return state;
+}
+  */
+export function createState(initialValue) {
+  let value = initialValue;
+  const state = {
+    get value() {
+      return value;
+    },
+    set: (newValue) => {
+      value = newValue;
+      listeners.forEach((cb) => cb());
+    }
+  };
   return state;
 }
