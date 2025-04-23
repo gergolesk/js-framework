@@ -1,17 +1,10 @@
-/*
-import { createElement } from './utils/dom.js';
-
-export function render(component, root) {
-  root.innerHTML = ''; // Clear existing content of the root container
-  const el = component(); // Call the component function to get a DOM element
-
-  if (el instanceof Node) {
-    root.appendChild(el); // If the component returned a valid DOM node, render it
-  } else {
-    console.warn('Component did not return a DOM node'); // Warn if the component returned something invalid
-  }
-}
-*/
+/**
+ * render.js
+ * 
+ * Renders a component function into a given DOM container.
+ * Clears previous content, appends the new DOM node, and triggers mount callbacks.
+ * This function ensures consistent setup of the DOM when a component is re-rendered.
+ */
 
 import { runMountCallbacks } from './utils/lifecycle.js';
 

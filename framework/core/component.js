@@ -1,3 +1,11 @@
+/**
+ * component.js
+ * 
+ * A utility for creating reactive components.
+ * Subscribes the component to state updates and re-evaluates its output
+ * whenever state changes.
+ */
+
 import { subscribe } from '../state.js';
 
 export function createComponent(componentFn, props = {}) {

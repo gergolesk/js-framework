@@ -1,3 +1,11 @@
+/**
+ * state.js
+ * 
+ * A minimal reactive state management system.
+ * Provides hooks for shared state (`useState`) and standalone state (`createState`),
+ * along with subscription management for automatic re-renders.
+ */
+
 let state = {}; // Global key-value store for state variables
 const listeners = new Set(); // A set of functions to call when state updates
 

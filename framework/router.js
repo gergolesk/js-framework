@@ -1,3 +1,11 @@
+/**
+ * router.js
+ * 
+ * A simple hash-based router implementation.
+ * Supports defining routes and components, listening to route changes,
+ * and rendering the appropriate component into a container.
+ */
+
 import { subscribe } from './state.js';
 // Import the 'subscribe' function from state.js, used to reactively re-render when state changes
 

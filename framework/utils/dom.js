@@ -1,3 +1,11 @@
+/**
+ * dom.js
+ * 
+ * A utility function for creating DOM elements in a declarative way.
+ * Supports setting attributes, styles, event listeners, and nesting children.
+ * This function is similar in spirit to React.createElement, but simpler and DOM-native.
+ */
+
 export function createElement(type, props = {}, ...children) {
   const el = document.createElement(type); // Create a DOM element of the given type (e.g. 'div', 'button')
   
@@ -24,6 +32,5 @@ export function createElement(type, props = {}, ...children) {
     }
   });
 
-    return el;
-  }
-  
+  return el;
+}
