@@ -25,6 +25,6 @@ This project consists of a custom frontend framework written in vanilla JavaScri
 
 ## What's Next?
 
-- HTTP request support
+- HTTP request support - IN PROGRESS
 - Lazy rendering
 - Performance improvements
