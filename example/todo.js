@@ -1,6 +1,8 @@
 import { createElement } from '../framework/utils/dom.js';
 import { createState } from '../framework/state.js';
 import { defineRoutes, navigate } from '../framework/router.js';
+import { onMount } from '../framework/utils/lifecycle.js';
+import { httpRequest } from '../framework/utils/http.js';
 
 
 const todos = createState([]);
@@ -27,6 +29,26 @@ function toggleTodo(index) {
 function deleteTodo(index) {
   todos.set(todos.value.filter((_, i) => i !== index));
 }
+
+/*
+async function loadTodosFromServer() {
+  try {
+    const serverTodos = await httpRequest('https://jsonplaceholder.typicode.com/todos?_limit=5');
+    const formatted = serverTodos.map(t => ({ text: t.title, done: t.completed }));
+    todos.set(formatted);
+  } catch (err) {
+    console.error('Failed to load todos:', err.message);
+  }
+}
+*/
+
+onMount(async () => {
+  const remoteTodos = await httpRequest('https://jsonplaceholder.typicode.com/todos?_limit=5');
+  todos.set(remoteTodos.map(todo => ({
+    text: todo.title,
+    done: todo.completed
+  })));
+});
 
 export default function TodoApp() {
   return createElement('div', { className: 'todo-app', style: 'padding: 1rem; max-width: 400px; margin: auto;' },

@@ -1,3 +1,4 @@
+/*
 // Простейшая обёртка над fetch
 
 export async function get(url) {
@@ -27,4 +28,26 @@ export async function get(url) {
   }
   
   // (по желанию: put, del и кэширование)
+  */
+ 
+  export async function httpRequest(url, method = 'GET', data = null) {
+    const config = {
+      method,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+  
+    if (data) {
+      config.body = JSON.stringify(data);
+    }
+  
+    const res = await fetch(url, config);
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+  
+    return res.json();
+  }
+  
   

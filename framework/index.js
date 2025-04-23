@@ -1,3 +1,4 @@
+/*
 import { createElement } from './utils/dom.js';
 
 export function render(component, root) {
@@ -9,4 +10,14 @@ export function render(component, root) {
   } else {
     console.warn('Component did not return a DOM node'); // Warn if the component returned something invalid
   }
+}
+*/
+
+import { runMountCallbacks } from './utils/lifecycle.js';
+
+export function render(componentFn, container) {
+  container.innerHTML = '';
+  const el = componentFn();
+  container.appendChild(el);
+  runMountCallbacks(); // добавляем вызов
 }
