@@ -1,7 +1,7 @@
 import { createElement } from '../framework/utils/dom.js';
 import { createState } from '../framework/state.js';
 import { defineRoutes, RouterView } from '../framework/router.js';
-import { render } from '../framework/index.js';
+import { render } from '../framework/render.js';
 import TodoApp from './todo.js';
 
 defineRoutes({
