@@ -1,15 +1,20 @@
-import { createApp, Router } from './path-to-framework/index.js'; // укажи путь к своему фреймворку
+//import { createApp, Router } from './path-to-framework/index.js'; // укажи путь к своему фреймворку
+import { defineRoutes, RouterView } from '../framework/router.js';
+import { render } from '../framework/render.js';
 
 import MovieList from './components/MovieList.js';
 import MoviePage from './components/MoviePage.js';
 import NotFound from './components/NotFound.js';
 
-const router = new Router({
-  routes: {
-    '/': MovieList,
-    '/movie/:id': MoviePage,
-  },
-  notFound: NotFound
+defineRoutes({
+  '/': MovieList,
+  '/movie/:id': MoviePage,
+  '*': NotFound,
 });
 
-createApp(document.getElementById('app'), router);
+document.addEventListener('DOMContentLoaded', () => {
+  const app = document.getElementById('app');
+  if (app) {
+    render(RouterView, app);
+  }
+});
