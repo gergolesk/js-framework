@@ -18,36 +18,31 @@ function toggleMovie(id) {
 }
 
 export default function MovieList() {
-    return createElement('div', { className: 'movie-list', style: 'padding: 1rem; max-width: 600px; margin: auto;' },
-      createElement('h2', {}, 'Movies'),
-      ...movies.value.map(movie => {
-        const isSelected = selectedMovieId.value === movie.id;
-        return createElement('div', {
-          style: 'border: 1px solid #ccc; margin-bottom: 1rem; border-radius: 8px; overflow: hidden; transition: box-shadow 0.3s;',
-          onClick: () => toggleMovie(movie.id)
+  return createElement('div', { class: 'movie-list' },
+    createElement('h2', {}, 'Movies'),
+    ...movies.value.map(movie => {
+      const isSelected = selectedMovieId.value === movie.id;
+      return createElement('div', {
+        class: 'movie-item',
+        onClick: () => toggleMovie(movie.id)
+      },
+        createElement('div', {
+          class: 'movie-header'
         },
-          createElement('div', {
-            style: 'padding: 1rem; cursor: pointer; background: #f9f9f9;'
-          },
-            createElement('h3', { style: 'margin: 0;' }, movie.title + ` (${movie.releaseYear})`)
-          ),
-          createElement('div', {
-            style: `
-              max-height: ${isSelected ? '500px' : '0'};
-              opacity: ${isSelected ? '1' : '0'};
-              overflow: hidden;
-              transition: max-height 0.5s ease, opacity 0.5s ease;
-              background: #fff;
-              padding: ${isSelected ? '1rem' : '0 1rem'};
-            `
-          },
-            isSelected && createElement('div', {},
-              createElement('p', {}, `Duration: ${movie.duration} min`),
-              createElement('p', {}, `Genres: ${movie.genres.join(', ') || 'None'}`),
-              createElement('p', {}, `Actors: ${movie.actors.join(', ') || 'None'}`)
-            )
+          createElement('h3', { class: 'movie-title' }, `${movie.title} (${movie.releaseYear})`)
+        ),
+        createElement('div', {
+          class: `movie-details${isSelected ? ' open' : ''}`
+        },
+          isSelected && createElement('div', {},
+            createElement('p', {}, `Duration: ${movie.duration} min`),
+            createElement('p', {}, `Genres: ${movie.genres.join(', ') || 'None'}`),
+            createElement('p', {}, `Actors: ${movie.actors.join(', ') || 'None'}`)
           )
-        );
-      })
-    );
-  }
+        )
+      );
+    })
+  );
+}
+
+ 

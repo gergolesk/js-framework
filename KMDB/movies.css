@@ -1,0 +1,40 @@
+/* MovieList.css */
+.movie-list {
+    padding: 1rem;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .movie-item {
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+    cursor: pointer;
+  }
+  
+  .movie-header {
+    padding: 1rem;
+    background: #f9f9f9;
+  }
+  
+  .movie-title {
+    margin: 0;
+  }
+  
+  .movie-details {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+    background: #fff;
+    padding: 0 1rem;
+  }
+  
+  .movie-details.open {
+    max-height: 500px;
+    opacity: 1;
+    padding: 1rem;
+  }
+  
