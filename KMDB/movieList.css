@@ -1,0 +1,55 @@
+.movie-list {
+    padding: 1rem;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .movie-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+    background: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  .movie-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .movie-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+  }
+  
+  .movie-title {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  
+  .arrow {
+    transition: transform 0.3s ease;
+  }
+  
+  .arrow.rotate {
+    transform: rotate(90deg);
+  }
+  
+  .movie-details {
+    background: #fff;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    padding: 0 1rem;
+    transition: max-height 0.5s ease, opacity 0.5s ease, padding 0.5s ease;
+  }
+  
+  .movie-card.open .movie-details {
+    max-height: 500px;
+    opacity: 1;
+    padding: 1rem;
+  }
+  
