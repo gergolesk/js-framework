@@ -7,6 +7,11 @@
  */
 
 export function createElement(type, props = {}, ...children) {
+
+  if (typeof tag === 'function') {
+    return tag({...props, children});
+  }
+  
   const el = document.createElement(type); // Create a DOM element of the given type (e.g. 'div', 'button')
   
   for (const [key, value] of Object.entries(props)) {
