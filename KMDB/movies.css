@@ -1,0 +1,74 @@
+/* MovieList.css */
+.movie-list {
+    padding: 1rem;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .movie-item {
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+    cursor: pointer;
+  }
+  
+  .movie-header {
+    padding: 1rem;
+    background: #f9f9f9;
+  }
+  
+  .movie-title {
+    margin: 0;
+  }
+  
+  .movie-details {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+    background: #fff;
+    padding: 0 1rem;
+  }
+  
+  .movie-details.open {
+    max-height: 500px;
+    opacity: 1;
+    padding: 1rem;
+  }
+  
+  .movie-details form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .movie-details input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .edit-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .edit-actions button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .save-btn {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .cancel-btn {
+    background-color: #f44336;
+    color: white;
+  }
