@@ -11,7 +11,7 @@ const editingMovieId = createState(null);
 const editFormState = createState({});
 
 onMount(async () => {
-  const response = await httpRequest(`${API_BASE}/movies?page=0&size=90`);
+  const response = await httpRequest(`${API_BASE}/movies?page=0&size=1000`);
   movies.set(response.content); 
 });
 
@@ -30,7 +30,7 @@ async function deleteMovie(movieId) {
   );
 
   // Refresh movies list after deletion
-  const response = await httpRequest(`${API_BASE}/movies?page=0&size=90`);
+  const response = await httpRequest(`${API_BASE}/movies?page=0&size=1000`);
   movies.set(response.content);
 }
 
