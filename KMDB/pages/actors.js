@@ -11,6 +11,9 @@ const editingActorId = createState(null);
 const actorMovies = createState({}); // объект: { [actorId]: [movies] }
 const editFormState = createState({});
 
+const editingActor = createState({ id: null, form: null });
+
+
 
 onMount(async () => {
   const response = await httpRequest(`${API_BASE}/actors`);
@@ -27,7 +30,7 @@ async function toggleActor(id) {
     }
   
     // 🔁 Форсируем перерисовку
-    actors.set([...actors.value]);
+    //actors.set([...actors.value]);
   }
 
 async function deleteActor(actorId) {
@@ -39,15 +42,35 @@ async function deleteActor(actorId) {
     actors.set(response);
 }
 
+/*
 function editActor(actor) {
     editingActorId.set(actor.id);
-    editFormState.set({ name: actor.name, birthDate: actor.birthDate });
+    editForm = { name: actor.name, birthDate: actor.birthDate };
+  }
+*/
+
+function editActor(actor) {
+    editingActorId.set(actor.id);
+
   }
   
+  /*
   function handleInputChange(field, value) {
     editFormState.set({ ...editFormState.value, [field]: value });
   }
-  
+    */
+  function handleInputChange(field, value) {
+    const updated = {
+      ...editingActor.value,
+      form: {
+        ...editingActor.value.form,
+        [field]: value
+      }
+    };
+    editingActor.set(updated);
+  }
+
+  /*
   async function saveEdit(actorId) {
     await httpRequest(`${API_BASE}/actors/${actorId}`, 'PATCH', editFormState.value);
     editingActorId.set(null);
@@ -55,6 +78,75 @@ function editActor(actor) {
     const response = await httpRequest(`${API_BASE}/actors`);
     actors.set(response);
   }
+*/
+async function saveEdit(id, formData) {
+    await httpRequest(`${API_BASE}/actors/${id}`, 'PATCH', formData);
+    editingActorId.set(null);
+  
+    const response = await httpRequest(`${API_BASE}/actors`);
+    actors.set(response);
+  }
+
+  /*
+  function ActorEditForm(actorId) {
+    return createElement('form', {
+      onClick: e => e.stopPropagation(),
+      onSubmit: e => { e.preventDefault(); saveEdit(actorId); }
+    },
+      createElement('input', {
+        type: 'text',
+        value: editFormState.value.name || '',
+        placeholder: 'Name',
+        onInput: e => handleInputChange('name', e.target.value)
+      }),
+      createElement('input', {
+        type: 'date',
+        value: editFormState.value.birthDate || '',
+        placeholder: 'Birthdate',
+        onInput: e => handleInputChange('birthDate', e.target.value)
+      }),
+      createElement('button', { type: 'submit' }, 'Save')
+    );
+  }
+    */
+
+  function ActorEditForm(actor) {
+    // Локальные переменные живут при первом создании формы
+    let name = actor.name || '';
+    let birthDate = actor.birthDate || '';
+  
+    const nameInput = createElement('input', {
+      name: 'name',
+      type: 'text',
+      placeholder: 'Name',
+      value: name,
+      onInput: e => name = e.target.value
+    });
+  
+    const birthDateInput = createElement('input', {
+      name: 'birthDate',
+      type: 'date',
+      placeholder: 'Birthdate',
+      value: birthDate,
+      onInput: e => birthDate = e.target.value
+    });
+  
+    return createElement('form', {
+      onClick: e => e.stopPropagation(),
+      onSubmit: e => {
+        e.preventDefault();
+        saveEdit(actor.id, {
+          name,
+          birthDate
+        });
+      }
+    },
+      nameInput,
+      birthDateInput,
+      createElement('button', { type: 'submit' }, 'Save')
+    );
+  }
+  
 
   export default function ActorList() {
     //console.log('Rendering ActorList, selectedActorId =', selectedActorId.value);
@@ -71,6 +163,7 @@ function editActor(actor) {
       ...actors.value.map(actor => {
         const isSelected = selectedActorId.value === actor.id;
         const isEditing = editingActorId.value === actor.id;
+        //const isEditing = editingActor.value.id === actor.id;
         const movies = actorMovies.value[actor.id] || [];
   
         return createElement('div', {
@@ -87,36 +180,22 @@ function editActor(actor) {
             },
               isEditing
                 ? createElement('button', {
+                    class: 'edit-btn',
                     onClick: (e) => { e.stopPropagation(); saveEdit(actor.id); }
                   }, 'Save')
                 : createElement('button', {
+                    class: 'edit-btn',
                     onClick: (e) => { e.stopPropagation(); editActor(actor); }
                   }, 'Edit'),
               createElement('button', {
+                class: 'delete-btn',
                 onClick: (e) => { e.stopPropagation(); deleteActor(actor.id); }
               }, 'Delete')
             )
           ),
           isSelected && createElement('div', { class: 'entity-details.open' },
             isEditing
-              ? createElement('form', {
-                  onClick: e => e.stopPropagation(),
-                  onSubmit: e => { e.preventDefault(); saveEdit(actor.id); }
-                },
-                  createElement('input', {
-                    type: 'text',
-                    value: editFormState.value.name || '',
-                    placeholder: 'Name',
-                    onInput: e => handleInputChange('name', e.target.value)
-                  }),
-                  createElement('input', {
-                    type: 'date',
-                    value: editFormState.value.birthDate || '',
-                    placeholder: 'Birthdate',
-                    onInput: e => handleInputChange('birthDate', e.target.value)
-                  }),
-                  createElement('button', { type: 'submit' }, 'Save')
-                )
+              ? ActorEditForm(actor)
               : createElement('div', {},
                   createElement('p', {}, `Birthdate: ${actor.birthDate}`),
                   createElement('h4', {}, 'Movies:'),
