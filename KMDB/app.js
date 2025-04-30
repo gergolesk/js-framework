@@ -52,42 +52,33 @@ onMount(() => {
 });
 
 // Страницы
+
 function HomePage() {
-  return createElement('div', { style: 'padding: 1rem;' },
-    createElement('h1', {}, 'Movie App'),
-    createElement('nav', { style: 'margin-bottom: 1rem;' },
-      createElement('button', { onClick: () => navigate('/actors') }, 'Actors'),
-      createElement('button', { onClick: () => navigate('/genres') }, 'Genres'),
-      createElement('button', { onClick: () => navigate('/movies') }, 'Movies')
+  return createElement('div', { class: 'homepage' },
+    createElement('h1', { class: 'homepage-title' }, '🎬 Movie App'),
+
+    createElement('p', { class: 'homepage-description' },
+      'Welcome to your personal movie database!'
     ),
-    createElement('p', {}, 'Welcome to the movie database!')
+
+    createElement('nav', { class: 'homepage-nav' },
+      createElement('button', {
+        class: 'homepage-button',
+        onClick: () => navigate('/actors')
+      }, 'Actors'),
+
+      createElement('button', {
+        class: 'homepage-button',
+        onClick: () => navigate('/genres')
+      }, 'Genres'),
+
+      createElement('button', {
+        class: 'homepage-button',
+        onClick: () => navigate('/movies')
+      }, 'Movies')
+    )
   );
 }
 
-/*
-function ActorsPage() {
-  return createElement('div', { style: 'padding: 1rem;' },
-    createElement('h2', {}, 'Actors'),
-    ...actors.value.map(actor => createElement('div', { style: 'margin-bottom: 0.5rem;' }, actor.name))
-  );
-}
-*/
 
-/*
-function GenresPage() {
-  return createElement('div', { style: 'padding: 1rem;' },
-    createElement('h2', {}, 'Genres'),
-    ...genres.value.map(genre => createElement('div', { style: 'margin-bottom: 0.5rem;' }, genre.name))
-  );
-}
-  */
-
-/*
-function MoviesPage() {
-  return createElement('div', { style: 'padding: 1rem;' },
-    createElement('h2', {}, 'Movies'),
-    ...movies.value.map(movie => createElement('div', { style: 'margin-bottom: 0.5rem;' }, movie.title))
-  );
-}
-*/
 export default HomePage;
