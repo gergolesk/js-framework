@@ -1,9 +1,9 @@
-import { API_BASE } from './config.js';
+import { API_BASE } from '../config.js';
 
-import { createElement } from '../framework/utils/dom.js';
-import { createState } from '../framework/state.js';
-import { onMount } from '../framework/utils/lifecycle.js';
-import { httpRequest } from '../framework/utils/http.js';
+import { createElement } from '../../framework/utils/dom.js';
+import { createState } from '../../framework/state.js';
+import { onMount } from '../../framework/utils/lifecycle.js';
+import { httpRequest } from '../../framework/utils/http.js';
 
 const movies = createState([]);
 const selectedMovieId = createState(null);

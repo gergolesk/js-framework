@@ -7,7 +7,7 @@ import { onMount } from '../framework/utils/lifecycle.js';
 import { httpRequest } from '../framework/utils/http.js';
 import { render } from '../framework/render.js';
 
-import MovieList from './movies.js';
+import MovieList from './pages/movies.js';
 
 const actors = createState([]);
 const genres = createState([]);
