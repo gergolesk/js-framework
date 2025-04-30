@@ -46,6 +46,9 @@ async function saveEdit(id, formData) {
     actors.set(response);
 }
 
+function cancelEdit() {
+    editingActorId.set(null);
+}
 
 
 function ActorEditForm(actor) {
@@ -81,7 +84,8 @@ function ActorEditForm(actor) {
     },
         nameInput,
         birthDateInput,
-        createElement('button', { type: 'submit' }, 'Save')
+        createElement('button', {class: 'save-btn', type: 'submit' }, 'Save'),
+        createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
     );
 }
   
@@ -118,7 +122,7 @@ export default function ActorList() {
             },
                 isEditing
                 ? createElement('button', {
-                    class: 'edit-btn',
+                    class: 'save-btn',
                     onClick: (e) => { e.stopPropagation(); saveEdit(actor.id); }
                     }, 'Save')
                 : createElement('button', {
