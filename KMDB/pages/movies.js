@@ -151,7 +151,7 @@ export default function MovieList() {
     onClick: () => history.back()
   }, '← Back');
 
-  return createElement('div', { class: 'movie-list' },
+  return createElement('div', { class: 'entity-list' },
     backButton,
     createElement('h2', {}, 'Movies'),
     ...movies.value.map(movie => {
@@ -159,20 +159,20 @@ export default function MovieList() {
       const isEditing = editingMovieId.value === movie.id;
 
       return createElement('div', {
-        class: 'movie-item',
+        class: 'entity-item',
         onClick: () => toggleMovie(movie.id)
       },
         createElement('div', {
-          class: 'movie-header'
+          class: 'entity-header'
         },
-          createElement('h3', { class: 'movie-title' }, `${movie.title} (${movie.releaseYear})`),
-          createElement('div', { class: 'movie-actions', onClick: (e) => e.stopPropagation() },
+          createElement('h3', { class: 'entity-title' }, `${movie.title} (${movie.releaseYear})`),
+          createElement('div', { class: 'entity-actions', onClick: (e) => e.stopPropagation() },
             createElement('button', { class: 'edit-btn', onClick: () => editMovie(movie) }, 'Edit'),
             createElement('button', { class: 'delete-btn', onClick: () => deleteMovie(movie.id) }, 'Delete')
           )
         ),
         createElement('div', {
-          class: `movie-details${isSelected ? ' open' : ''}`
+          class: `entity-details${isSelected ? ' open' : ''}`
         },
           isSelected && (isEditing
             ? createElement('form', { onClick: (e) => e.stopPropagation(), onSubmit: (e) => { e.preventDefault(); saveEdit(movie.id); } },

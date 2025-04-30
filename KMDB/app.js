@@ -8,6 +8,7 @@ import { httpRequest } from '../framework/utils/http.js';
 import { render } from '../framework/render.js';
 
 import MovieList from './pages/movies.js';
+import ActorList from './pages/actors.js';
 
 const actors = createState([]);
 const genres = createState([]);
@@ -15,7 +16,7 @@ const movies = createState([]);
 
 defineRoutes({
   '/': HomePage,
-  '/actors': ActorsPage,
+  '/actors': ActorList,
   '/genres': GenresPage,
   '/movies': MovieList
 });
