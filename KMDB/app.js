@@ -9,6 +9,7 @@ import { render } from '../framework/render.js';
 
 import MovieList from './pages/movies.js';
 import ActorList from './pages/actors.js';
+import GenreList from './pages/genres.js';
 
 const actors = createState([]);
 const genres = createState([]);
@@ -17,7 +18,7 @@ const movies = createState([]);
 defineRoutes({
   '/': HomePage,
   '/actors': ActorList,
-  '/genres': GenresPage,
+  '/genres': GenreList,
   '/movies': MovieList
 });
 
@@ -63,19 +64,23 @@ function HomePage() {
   );
 }
 
+/*
 function ActorsPage() {
   return createElement('div', { style: 'padding: 1rem;' },
     createElement('h2', {}, 'Actors'),
     ...actors.value.map(actor => createElement('div', { style: 'margin-bottom: 0.5rem;' }, actor.name))
   );
 }
+*/
 
+/*
 function GenresPage() {
   return createElement('div', { style: 'padding: 1rem;' },
     createElement('h2', {}, 'Genres'),
     ...genres.value.map(genre => createElement('div', { style: 'margin-bottom: 0.5rem;' }, genre.name))
   );
 }
+  */
 
 /*
 function MoviesPage() {
