@@ -233,3 +233,43 @@ input[type="number"] {
   color: #555;
   text-align: center;
 }
+
+/* Переиспользуемые стили для нумерованных списков */
+.styled-list {
+  padding-left: 2rem;
+  margin: 1rem 0;
+  list-style: none;
+  counter-reset: styled-list-counter;
+}
+
+.styled-list-item {
+  position: relative;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  counter-increment: styled-list-counter;
+  transition: background-color 0.2s ease;
+}
+
+.styled-list-item:hover {
+  background-color: #f5faff;
+}
+
+.styled-list-item::before {
+  content: counter(styled-list-counter);
+  position: absolute;
+  left: -2.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.6rem;
+  height: 1.6rem;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 1.6rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+}

@@ -165,8 +165,10 @@ export default function ActorList() {
                     : createElement('div', {},
                         createElement('p', {}, `Birthdate: ${actor.birthDate}`),
                         createElement('h4', {}, 'Movies:'),
-                        ...movies.map(m =>
-                          createElement('div', {}, `${m.title} (${m.year})`)
+                        createElement('ol', {class: 'styled-list'}, 
+                            ...movies.map(m =>
+                                createElement('li', {class: 'styled-list-item'}, `${m.title} (${m.releaseYear})`)
+                            ),                        
                         )
                       )
                 )

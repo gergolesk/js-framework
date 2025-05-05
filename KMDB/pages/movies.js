@@ -109,7 +109,7 @@ export default function MovieList() {
 
     // Если нет фильтрованных фильмов
     filtered.length === 0
-      ? createElement('p', {}, 'No movies found.')
+      ? createElement('p', {class :  'no-movies'}, 'No movies found.')
       : filtered.map(movie => {
           const isSelected = selectedMovieId.value === movie.id;
           const isEditing  = editingMovieId.value === movie.id;
