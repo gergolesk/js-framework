@@ -9,7 +9,10 @@ const actors = createState([]);
 const selectedActorId = createState(null);
 const editingActorId = createState(null);
 const actorMovies = createState({}); // объект: { [actorId]: [movies] }
+const filterLetter = createState('All');
 
+// буквы A–Z + “All”
+const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
 onMount(async () => {
   const response = await httpRequest(`${API_BASE}/actors`);
@@ -88,64 +91,87 @@ function ActorEditForm(actor) {
         createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
     );
 }
-  
 
 export default function ActorList() {
-    //console.log('Rendering ActorList, selectedActorId =', selectedActorId.value);
-
+    // сначала фильтруем и сортируем
+    const filtered = actors.value
+      .filter(a => filterLetter.value === 'All'
+        ? true
+        : a.name.toUpperCase().startsWith(filterLetter.value)
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
+  
     const backButton = createElement('button', {
-        class: 'back-btn',
-        style: 'margin-bottom: 1rem;',
-        onClick: () => history.back()
+      class: 'back-btn',
+      onClick: () => history.back()
     }, '← Back');
-
+  
+    // алфавитная навигация
+    const alphabetNav = createElement('div', { class: 'alphabet-nav' },
+      ...alphabet.map(letter =>
+        createElement('button', {
+          class: filterLetter.value === letter 
+            ? 'letter-btn active' 
+            : 'letter-btn',
+          onClick: () => filterLetter.set(letter)
+        }, letter)
+      )
+    );
+  
     return createElement('div', { class: 'entity-list' },
-        backButton,
-        createElement('h2', {}, 'Actors'),
-        ...actors.value.map(actor => {
-        const isSelected = selectedActorId.value === actor.id;
-        const isEditing = editingActorId.value === actor.id;
-        //const isEditing = editingActor.value.id === actor.id;
-        const movies = actorMovies.value[actor.id] || [];
-
-        return createElement('div', {
-            class: 'entity-item',
-            onClick: () => toggleActor(actor.id)
-        },
-            createElement('div', { class: 'entity-header' },
-            createElement('h3', {}, actor.name),
-            createElement('div', {
-                class: 'entity-actions',
-                onClick: e => {e.stopPropagation();
-                toggleActor(actor.id)
-                }
+      backButton,
+      createElement('h2', {}, 'Actors'),
+      alphabetNav,
+  
+      filtered.length === 0
+        ? createElement('p', { class: 'no-actors' }, 'No actors found.')
+        : filtered.map(actor => {
+            const isSelected = selectedActorId.value === actor.id;
+            const isEditing  = editingActorId.value === actor.id;
+            const movies     = actorMovies.value[actor.id] || [];
+  
+            return createElement('div', {
+              class: 'entity-item',
+              onClick: () => toggleActor(actor.id)
             },
-                isEditing
-                ? createElement('button', {
-                    class: 'save-btn',
-                    onClick: (e) => { e.stopPropagation(); saveEdit(actor.id); }
-                    }, 'Save')
-                : createElement('button', {
-                    class: 'edit-btn',
-                    onClick: (e) => { e.stopPropagation(); editActor(actor); }
-                    }, 'Edit'),
-                createElement('button', {
-                class: 'delete-btn',
-                onClick: (e) => { e.stopPropagation(); deleteActor(actor.id); }
-                }, 'Delete')
-            )
-            ),
-            isSelected && createElement('div', { class: 'entity-details.open' },
-            isEditing
-                ? ActorEditForm(actor)
-                : createElement('div', {},
-                    createElement('p', {}, `Birthdate: ${actor.birthDate}`),
-                    createElement('h4', {}, 'Movies:'),
-                    ...movies.map(m => createElement('div', {}, `${m.title} (${m.year})`))
+              createElement('div', { class: 'entity-header' },
+                createElement('h3', { class: 'entity-title' }, actor.name),
+                createElement('div', {
+                  class: 'entity-actions',
+                  onClick: e => e.stopPropagation()
+                },
+                  isEditing
+                    ? createElement('button', {
+                        class: 'save-btn',
+                        onClick: e => { e.stopPropagation(); saveEdit(actor.id, { name: actor.name, birthDate: actor.birthDate }); }
+                      }, 'Save')
+                    : createElement('button', {
+                        class: 'edit-btn',
+                        onClick: e => { e.stopPropagation(); editActor(actor); }
+                      }, 'Edit'),
+                  createElement('button', {
+                    class: 'delete-btn',
+                    onClick: e => { e.stopPropagation(); deleteActor(actor.id); }
+                  }, 'Delete')
                 )
-            )
-        );
-        }),
-        createElement('div', { style: 'margin-top: 2rem;' }, backButton)
+              ),
+  
+              createElement('div', {
+                class: `entity-details${isSelected ? ' open' : ''}`
+              },
+                isSelected && (
+                  isEditing
+                    ? ActorEditForm(actor)
+                    : createElement('div', {},
+                        createElement('p', {}, `Birthdate: ${actor.birthDate}`),
+                        createElement('h4', {}, 'Movies:'),
+                        ...movies.map(m =>
+                          createElement('div', {}, `${m.title} (${m.year})`)
+                        )
+                      )
+                )
+              )
+            );
+        })
     );
 }

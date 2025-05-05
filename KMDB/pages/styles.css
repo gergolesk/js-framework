@@ -225,3 +225,11 @@ input[type="number"] {
 .entity-details .edit-actions button {
   flex: 1;
 }
+
+/* сообщение об отсутствии актёров */
+.no-actors {
+  padding: 1rem;
+  font-style: italic;
+  color: #555;
+  text-align: center;
+}
