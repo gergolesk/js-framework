@@ -9,6 +9,7 @@ const movies = createState([]);
 const selectedMovieId = createState(null);
 const editingMovieId = createState(null);
 const editFormState = createState({});
+const filterLetter = createState('All');
 
 onMount(async () => {
   const response = await httpRequest(`${API_BASE}/movies?page=0&size=1000`);
@@ -71,155 +72,121 @@ async function saveEdit(movieId) {
 function handleInputChange(field, value) {
   editFormState.set({ ...editFormState.value, [field]: value });
 }
-/*
-export default function MovieList() {
-  return createElement('div', { class: 'movie-list' },
-    createElement('h2', {}, 'Movies'),
-    ...movies.value.map(movie => {
-      const isSelected = selectedMovieId.value === movie.id;
-      const isEditing = editingMovieId.value === movie.id;
 
-      return createElement('div', {
-        class: 'movie-item',
-        onClick: () => toggleMovie(movie.id)
-      },
-        createElement('div', {
-          class: 'movie-header'
-        },
-          createElement('h3', { class: 'movie-title' }, `${movie.title} (${movie.releaseYear})`),
-          createElement('div', { class: 'movie-actions', onClick: (e) => e.stopPropagation() },
-            createElement('button', { class: 'edit-btn', onClick: () => editMovie(movie) }, 'Edit'),
-            createElement('button', { class: 'delete-btn', onClick: () => deleteMovie(movie.id) }, 'Delete')
-          )
-        ),
-        createElement('div', {
-          class: `movie-details${isSelected ? ' open' : ''}`
-        },
-          isSelected && (isEditing
-            ? createElement('form', { onClick: (e) => e.stopPropagation(), onSubmit: (e) => { e.preventDefault(); saveEdit(movie.id); } },
-                createElement('input', {
-                  type: 'text',
-                  value: editFormState.value.title || '',
-                  placeholder: 'Title',
-                  onInput: e => handleInputChange('title', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'number',
-                  value: editFormState.value.releaseYear || '',
-                  placeholder: 'Release Year',
-                  onInput: e => handleInputChange('releaseYear', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'number',
-                  value: editFormState.value.duration || '',
-                  placeholder: 'Duration (min)',
-                  onInput: e => handleInputChange('duration', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'text',
-                  value: editFormState.value.genres || '',
-                  placeholder: 'Genres (comma separated)',
-                  onInput: e => handleInputChange('genres', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'text',
-                  value: editFormState.value.actors || '',
-                  placeholder: 'Actors (comma separated)',
-                  onInput: e => handleInputChange('actors', e.target.value)
-                }),
-                createElement('div', { class: 'edit-actions' },
-                  createElement('button', { type: 'submit', class: 'save-btn' }, 'Save'),
-                  createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
-                )
-              )
-            : createElement('div', {},
-                createElement('p', {}, `Duration: ${movie.duration} min`),
-                createElement('p', {}, `Genres: ${movie.genres.join(', ') || 'None'}`),
-                createElement('p', {}, `Actors: ${movie.actors.join(', ') || 'None'}`)
-              )
-          )
-        )
-      );
-    })
-  );
-}
-  */
+const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
+
 export default function MovieList() {
+  // Фильтруем фильмы по выбранной букве
+  const filtered = movies.value
+    .filter(m => {
+      if (filterLetter.value === 'All') return true;
+      return m.title.toUpperCase().startsWith(filterLetter.value);
+    })
+    .sort((a, b) => a.title.localeCompare(b.title));
+
   const backButton = createElement('button', {
     class: 'back-btn',
     style: 'margin-bottom: 1rem;',
     onClick: () => history.back()
   }, '← Back');
 
+  // Рендер строки букв
+  const alphabetNav = createElement('div', {
+    style: 'display:flex; flex-wrap: wrap; gap:0.5rem; margin:1rem 0;'
+  },
+    ...alphabet.map(letter =>
+      createElement('button', {
+        class: filterLetter.value === letter ? 'letter-btn active' : 'letter-btn',
+        onClick: () => filterLetter.set(letter)
+      }, letter)
+    )
+  );
+
   return createElement('div', { class: 'entity-list' },
     backButton,
     createElement('h2', {}, 'Movies'),
-    ...movies.value.map(movie => {
-      const isSelected = selectedMovieId.value === movie.id;
-      const isEditing = editingMovieId.value === movie.id;
+    alphabetNav,
 
-      return createElement('div', {
-        class: 'entity-item',
-        onClick: () => toggleMovie(movie.id)
-      },
-        createElement('div', {
-          class: 'entity-header'
-        },
-          createElement('h3', { class: 'entity-title' }, `${movie.title} (${movie.releaseYear})`),
-          createElement('div', { class: 'entity-actions', onClick: (e) => e.stopPropagation() },
-            createElement('button', { class: 'edit-btn', onClick: () => editMovie(movie) }, 'Edit'),
-            createElement('button', { class: 'delete-btn', onClick: () => deleteMovie(movie.id) }, 'Delete')
-          )
-        ),
-        createElement('div', {
-          class: `entity-details${isSelected ? ' open' : ''}`
-        },
-          isSelected && (isEditing
-            ? createElement('form', { onClick: (e) => e.stopPropagation(), onSubmit: (e) => { e.preventDefault(); saveEdit(movie.id); } },
-                createElement('input', {
-                  type: 'text',
-                  value: editFormState.value.title || '',
-                  placeholder: 'Title',
-                  onInput: e => handleInputChange('title', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'number',
-                  value: editFormState.value.releaseYear || '',
-                  placeholder: 'Release Year',
-                  onInput: e => handleInputChange('releaseYear', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'number',
-                  value: editFormState.value.duration || '',
-                  placeholder: 'Duration (min)',
-                  onInput: e => handleInputChange('duration', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'text',
-                  value: editFormState.value.genres || '',
-                  placeholder: 'Genres (comma separated)',
-                  onInput: e => handleInputChange('genres', e.target.value)
-                }),
-                createElement('input', {
-                  type: 'text',
-                  value: editFormState.value.actors || '',
-                  placeholder: 'Actors (comma separated)',
-                  onInput: e => handleInputChange('actors', e.target.value)
-                }),
-                createElement('div', { class: 'edit-actions' },
-                  createElement('button', { type: 'submit', class: 'save-btn' }, 'Save'),
-                  createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
-                )
+    // Если нет фильтрованных фильмов
+    filtered.length === 0
+      ? createElement('p', {}, 'No movies found.')
+      : filtered.map(movie => {
+          const isSelected = selectedMovieId.value === movie.id;
+          const isEditing  = editingMovieId.value === movie.id;
+
+          return createElement('div', {
+            class: 'entity-item',
+            onClick: () => toggleMovie(movie.id)
+          },
+            createElement('div', { class: 'entity-header' },
+              createElement('h3', { class: 'entity-title' },
+                `${movie.title} (${movie.releaseYear})`
+              ),
+              createElement('div', {
+                class: 'entity-actions',
+                onClick: e => e.stopPropagation()
+              },
+                createElement('button', {
+                  class: 'edit-btn',
+                  onClick: () => editMovie(movie)
+                }, 'Edit'),
+                createElement('button', {
+                  class: 'delete-btn',
+                  onClick: () => deleteMovie(movie.id)
+                }, 'Delete')
               )
-            : createElement('div', {},
-                createElement('p', {}, `Duration: ${movie.duration} min`),
-                createElement('p', {}, `Genres: ${movie.genres.join(', ') || 'None'}`),
-                createElement('p', {}, `Actors: ${movie.actors.join(', ') || 'None'}`)
+            ),
+            createElement('div', {
+              class: `entity-details${isSelected ? ' open' : ''}`
+            },
+              isSelected && (isEditing
+                ? createElement('form', {
+                    onClick: e => e.stopPropagation(),
+                    onSubmit: e => { e.preventDefault(); saveEdit(movie.id); }
+                  },
+                    createElement('input', {
+                      type: 'text',
+                      value: editFormState.value.title || '',
+                      placeholder: 'Title',
+                      onInput: e => handleInputChange('title', e.target.value)
+                    }),
+                    createElement('input', {
+                      type: 'number',
+                      value: editFormState.value.releaseYear || '',
+                      placeholder: 'Release Year',
+                      onInput: e => handleInputChange('releaseYear', e.target.value)
+                    }),
+                    createElement('input', {
+                      type: 'number',
+                      value: editFormState.value.duration || '',
+                      placeholder: 'Duration (min)',
+                      onInput: e => handleInputChange('duration', e.target.value)
+                    }),
+                    createElement('input', {
+                      type: 'text',
+                      value: editFormState.value.genres || '',
+                      placeholder: 'Genres (comma separated)',
+                      onInput: e => handleInputChange('genres', e.target.value)
+                    }),
+                    createElement('input', {
+                      type: 'text',
+                      value: editFormState.value.actors || '',
+                      placeholder: 'Actors (comma separated)',
+                      onInput: e => handleInputChange('actors', e.target.value)
+                    }),
+                    createElement('div', { class: 'edit-actions' },
+                      createElement('button', { type: 'submit', class: 'save-btn' }, 'Save'),
+                      createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
+                    )
+                  )
+                : createElement('div', {},
+                    createElement('p', {}, `Duration: ${movie.duration} min`),
+                    createElement('p', {}, `Genres: ${movie.genres.join(', ') || 'None'}`),
+                    createElement('p', {}, `Actors: ${movie.actors.join(', ') || 'None'}`)
+                  )
               )
-          )
-        )
-      );
-    }),
-    createElement('div', { style: 'margin-top: 2rem;' }, backButton)
+            )
+          );
+        })
   );
 }
