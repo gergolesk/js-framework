@@ -4,6 +4,7 @@ import { createElement } from '../../framework/utils/dom.js';
 import { createState } from '../../framework/state.js';
 import { onMount } from '../../framework/utils/lifecycle.js';
 import { httpRequest } from '../../framework/utils/http.js';
+import { LazyList } from '../../framework/utils/lazyList.js';
 
 const actors = createState([]);
 const selectedActorId = createState(null);
@@ -92,88 +93,54 @@ function ActorEditForm(actor) {
     );
 }
 
+
+
 export default function ActorList() {
-    // сначала фильтруем и сортируем
-    const filtered = actors.value
-      .filter(a => filterLetter.value === 'All'
-        ? true
-        : a.name.toUpperCase().startsWith(filterLetter.value)
-      )
-      .sort((a, b) => a.name.localeCompare(b.name));
-  
-    const backButton = createElement('button', {
-      class: 'back-btn',
-      onClick: () => history.back()
-    }, '← Back');
-  
-    // алфавитная навигация
-    const alphabetNav = createElement('div', { class: 'alphabet-nav' },
-      ...alphabet.map(letter =>
-        createElement('button', {
-          class: filterLetter.value === letter 
-            ? 'letter-btn active' 
-            : 'letter-btn',
-          onClick: () => filterLetter.set(letter)
-        }, letter)
+  const filteredActors = actors.value
+    .filter(a => filterLetter.value === 'All' || a.name.toUpperCase().startsWith(filterLetter.value))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const backButtonActors = createElement('button', { class: 'back-btn', onClick: () => history.back() }, '← Back');
+  const alphabetNavActors = createElement('div', { class: 'alphabet-nav', style: 'display:flex; flex-wrap: wrap; gap:0.5rem; margin:1rem 0;' },
+    ...['All', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))].map(letter =>
+      createElement('button', { class: filterLetter.value === letter ? 'letter-btn active' : 'letter-btn', onClick: () => filterLetter.set(letter) }, letter)
+    )
+  );
+
+  function renderActor(actor) {
+    const isSelected = selectedActorId.value === actor.id;
+    const isEditing = editingActorId.value === actor.id;
+    const moviesList = actorMovies.value[actor.id] || [];
+    return createElement('div', { class: 'entity-item', onClick: () => toggleActor(actor.id) },
+      createElement('div', { class: 'entity-header' },
+        createElement('h3', { class: 'entity-title' }, actor.name),
+        createElement('div', { class: 'entity-actions', onClick: e => e.stopPropagation() },
+          isEditing
+            ? createElement('button', { class: 'save-btn', onClick: e => { e.stopPropagation(); saveEdit(actor.id, { name: actor.name, birthDate: actor.birthDate }); } }, 'Save')
+            : createElement('button', { class: 'edit-btn', onClick: e => { e.stopPropagation(); editActor(actor); } }, 'Edit'),
+          createElement('button', { class: 'delete-btn', onClick: e => { e.stopPropagation(); deleteActor(actor.id); } }, 'Delete')
+        )
+      ),
+      createElement('div', { class: `entity-details${isSelected ? ' open' : ''}` },
+        isSelected && (isEditing ? ActorEditForm(actor) : createElement('div', {},
+          createElement('p', {}, `Birthdate: ${actor.birthDate}`),
+          createElement('h4', {}, 'Movies:'),
+          createElement('ol', { class: 'styled-list' },
+            ...moviesList.map(m => createElement('li', { class: 'styled-list-item' }, `${m.title} (${m.releaseYear})`))
+          )
+        ))
       )
     );
-  
-    return createElement('div', { class: 'entity-list' },
-      backButton,
-      createElement('h2', {}, 'Actors'),
-      alphabetNav,
-  
-      filtered.length === 0
-        ? createElement('p', { class: 'no-actors' }, 'No actors found.')
-        : filtered.map(actor => {
-            const isSelected = selectedActorId.value === actor.id;
-            const isEditing  = editingActorId.value === actor.id;
-            const movies     = actorMovies.value[actor.id] || [];
-  
-            return createElement('div', {
-              class: 'entity-item',
-              onClick: () => toggleActor(actor.id)
-            },
-              createElement('div', { class: 'entity-header' },
-                createElement('h3', { class: 'entity-title' }, actor.name),
-                createElement('div', {
-                  class: 'entity-actions',
-                  onClick: e => e.stopPropagation()
-                },
-                  isEditing
-                    ? createElement('button', {
-                        class: 'save-btn',
-                        onClick: e => { e.stopPropagation(); saveEdit(actor.id, { name: actor.name, birthDate: actor.birthDate }); }
-                      }, 'Save')
-                    : createElement('button', {
-                        class: 'edit-btn',
-                        onClick: e => { e.stopPropagation(); editActor(actor); }
-                      }, 'Edit'),
-                  createElement('button', {
-                    class: 'delete-btn',
-                    onClick: e => { e.stopPropagation(); deleteActor(actor.id); }
-                  }, 'Delete')
-                )
-              ),
-  
-              createElement('div', {
-                class: `entity-details${isSelected ? ' open' : ''}`
-              },
-                isSelected && (
-                  isEditing
-                    ? ActorEditForm(actor)
-                    : createElement('div', {},
-                        createElement('p', {}, `Birthdate: ${actor.birthDate}`),
-                        createElement('h4', {}, 'Movies:'),
-                        createElement('ol', {class: 'styled-list'}, 
-                            ...movies.map(m =>
-                                createElement('li', {class: 'styled-list-item'}, `${m.title} (${m.releaseYear})`)
-                            ),                        
-                        )
-                      )
-                )
-              )
-            );
-        })
-    );
+  }
+
+  const contentActors = filteredActors.length === 0
+    ? createElement('p', { class: 'no-actors' }, 'No actors found.')
+    : LazyList({ items: filteredActors, renderItem: renderActor, pageSize: 20 });
+
+  return createElement('div', { class: 'entity-list' },
+    backButtonActors,
+    createElement('h2', {}, 'Actors'),
+    alphabetNavActors,
+    contentActors
+  );
 }
