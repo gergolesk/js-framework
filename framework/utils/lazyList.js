@@ -4,6 +4,7 @@ import { createState } from '../state.js';
 export function LazyList({ items, renderItem, pageSize = 20 }) {
   // контейнер для списка: высота рассчитывается от высоты вьюпорта
   const container = createElement('div', {
+    class: 'lazy-list',
     style: 'overflow-y: auto; height: calc(100vh - 200px);'
   });
 
