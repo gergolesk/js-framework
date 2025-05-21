@@ -273,3 +273,14 @@ input[type="number"] {
   font-weight: bold;
   font-size: 0.9rem;
 }
+
+.actor-checkbox-list {
+  max-height: 120px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 0.5em;
+  margin-bottom: 1em;
+  background: #fafafd;
+}
+

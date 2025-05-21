@@ -1,7 +1,7 @@
 import { API_BASE } from './config.js';
 
 import { createElement } from '../framework/utils/dom.js';
-import { createState } from '../framework/state.js';
+import { createState, subscribe } from '../framework/state.js';
 import { defineRoutes, navigate, RouterView } from '../framework/router.js';
 import { onMount } from '../framework/utils/lifecycle.js';
 import { httpRequest } from '../framework/utils/http.js';
@@ -22,12 +22,25 @@ defineRoutes({
   '/movies': MovieList
 });
 
+function rerender() {
+  const app = document.getElementById('app');
+  if (app) {
+    render(RouterView, app);
+  }
+}
+
+subscribe(rerender);
+
+/*
 document.addEventListener('DOMContentLoaded', () => {
   const app = document.getElementById('app');
   if (app) {
     render(RouterView, app);
   }
 });
+*/
+
+document.addEventListener('DOMContentLoaded', rerender);
 
 async function loadActors() {
   const data = await httpRequest(`${API_BASE}/actors`);
