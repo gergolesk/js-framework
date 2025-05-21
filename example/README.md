@@ -1,22 +1,38 @@
-# Example: ToDo Application
+# KMDB Frontend
 
-## Description
+This is a web application for interacting with the [KMDB server](https://github.com/gergolesk/kmdb).
 
-This is a demonstration ToDo app built using the `dot-js` framework. It showcases how to use components, routing, and reactive state.
+The application fetches a list of movies from the server and displays detailed information for each movie with a smooth expandable card effect.
 
-## Features
+## Server Repository
 
-- Add tasks
-- Delete tasks
-- Toggle completed status
-- Display task list
+Before using the frontend, make sure to start the backend server:  
+👉 [KMDB Server Repository](https://github.com/gergolesk/kmdb)
 
-## Getting Started
+Instructions for running the server are provided in its README.
 
-Open `example/index.html` using Live Server or any local HTTP server. The app will render automatically.
+You can use your own KMDB server, but proper operation is not guaranteed.
 
-## Files
+## How to Run the Frontend
 
-- `todo.js` – main component
-- `index.html` – entry point
-- `app.js` – app initialization and routing
+1. Clone this repository:
+
+   ```bash
+   git clone https://gitea.kood.tech/georgolesk/frontend-framework.git
+   cd frontend-framework/KMDB
+    ```
+
+2. Start a development server using a tool like Live Server (e.g., in VS Code).
+Or run a simple local server from the terminal, for example:
+
+Using python:
+
+   ```bash
+   python -m http.server 5500
+   ```
+
+
+After starting, open your browser at:
+http://localhost:5500/
+
+Make sure the KMDB server is running and accessible at the expected API endpoints (e.g., /api/movies).
