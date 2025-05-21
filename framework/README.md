@@ -1,64 +1,226 @@
-# dot-js — Lightweight JavaScript Frontend Framework
+# JS Frontend Framework
 
 ## Overview
 
-`dot-js` is a minimalist frontend framework that allows you to build user interfaces using plain JavaScript without external libraries.
+**JS Frontend Framework** is a minimalist JavaScript framework for declaratively describing user interfaces, managing state, routing, events, and HTTP requests—all without external dependencies.
 
-## Design Principles
+- Compatible with modern browsers.
+- No third-party libraries or frameworks required.
+- Simple to use and extend.
 
-- Simplicity and readability
-- DOM abstraction
-- Minimal API surface
-- Reactive state
-- Component-based structure
-- Built-in routing
+---
 
-## Quick Start
+## Architecture & Design Principles
 
-```js
-import { render } from './framework/index.js';
-import { RouterView } from './framework/router.js';
+- **Component Model**: Reusable UI components with isolated state.
+- **Reactive State Management**: Automatic UI updates when state changes.
+- **Client-side Routing**: Display pages and components based on the URL.
+- **Declarative Event Handling**: Events are described directly in components.
+- **DOM Abstraction**: Create and update elements through framework APIs.
+- **HTTP Utilities**: Convenient methods for working with remote APIs.
+- **Lazy Rendering**: Render only the necessary part of large lists (improves performance).
 
-render(RouterView, document.getElementById('app'));
-```
+---
 
 ## Installation
 
-No package installation needed. Include files from the `framework/` directory directly.
+The framework requires no npm installation.  
+Simply copy the `framework/` folder into your project and import the needed modules.
 
-## File Structure
-
-- `index.js` – entry point
-- `dom.js` – DOM utilities
-- `state.js` – reactive state management
-- `router.js` – routing system
-
-## API Reference
-
-### `createElement(type, props, ...children)`
-
-```js
-createElement('button', {
-  onClick: () => alert('Click'),
-  style: 'color: red;'
-}, 'Click Me');
+**Example:**
+```html
+<script type="module" src="./framework/render.js"></script>
+<script type="module" src="./framework/state.js"></script>
+<script type="module" src="./app.js"></script>
 ```
 
-### `createState(initialValue)`
+---
 
+## Getting Started
+
+1. **Create a Component:**
+    ```js
+    import { Component } from './framework/core/component.js';
+
+    export class HelloWorld extends Component {
+      render() {
+        return this.createElement('div', {}, 'Hello, World!');
+      }
+    }
+    ```
+
+2. **Set Up Global State:**
+    ```js
+    import { createStore } from './framework/state.js';
+
+    const store = createStore({ count: 0 });
+    store.subscribe((state) => {
+      // handle state update
+    });
+    ```
+
+3. **Add Routing:**
+    ```js
+    import { createRouter } from './framework/router.js';
+
+    createRouter({
+      '/': HomePage,
+      '/about': AboutPage,
+      // ...
+    });
+    ```
+
+4. **Send HTTP Requests:**
+    ```js
+    import { http } from './framework/utils/http.js';
+
+    http.get('/api/data').then(data => { ... });
+    ```
+
+---
+
+## Features
+
+### 1. Component System
+
+- Build custom components via classes or factory functions.
+- Supports props, events, and lifecycle hooks.
+
+**Example:**
 ```js
-const counter = createState(0);
-counter.set(counter.value + 1);
+import { Component } from './framework/core/component.js';
+
+class Button extends Component {
+  render() {
+    return this.createElement('button', { onClick: this.handleClick }, 'Click me');
+  }
+  handleClick = () => {
+    alert('Button clicked!');
+  }
+}
 ```
 
-### `defineRoutes({ path: Component })`
+---
 
+### 2. State Management
+
+- Global or local stores.
+- Subscriptions to state updates.
+- UI automatically reflects state changes.
+
+**Example:**
 ```js
-defineRoutes({ '/': HomePage });
+import { createStore } from './framework/state.js';
+
+const store = createStore({ user: null });
+store.setState({ user: { name: 'Alice' } });
 ```
 
-### `navigate(path)`
+---
 
+### 3. Routing
+
+- Map URLs to components/pages.
+- Navigate programmatically via push or API.
+
+**Example:**
 ```js
-navigate('/about');
+import { createRouter, navigate } from './framework/router.js';
+
+createRouter({
+  '/': HomePage,
+  '/profile': ProfilePage,
+});
+
+navigate('/profile');
 ```
+
+---
+
+### 4. Event Handling
+
+- Declarative event binding in components.
+- Pass event handlers via props or methods.
+
+**Example:**
+```js
+return this.createElement('input', {
+  onInput: (e) => this.setState({ value: e.target.value })
+});
+```
+
+---
+
+### 5. DOM Manipulation
+
+- Create and update elements via `createElement`, `setAttribute`, and `setStyle`.
+- Automatic data-to-DOM binding.
+
+---
+
+### 6. HTTP Utilities
+
+- Unified API for HTTP: get, post, put, delete.
+- Supports async requests and error handling.
+
+**Example:**
+```js
+import { http } from './framework/utils/http.js';
+
+http.get('/api/users').then(users => { ... });
+```
+
+---
+
+### 7. Lazy Rendering (Performance)
+
+- Lazy rendering of large lists via a special component or utility.
+
+**Example:**
+```js
+import { LazyList } from './framework/utils/lazyList.js';
+
+// Use LazyList to render only the visible part of a large list
+```
+
+---
+
+## Best Practices & Guidelines
+
+- Use a single store for global state when possible.
+- Split your app into small, reusable components.
+- Avoid manipulating the DOM outside components.
+- Make all remote requests via http.js for consistency.
+- Reuse components and avoid code duplication.
+
+---
+
+## Contributing
+
+- Open issues for suggestions or bugs.
+- Submit pull requests with a description of your changes.
+
+---
+
+## License
+
+MIT
+
+---
+
+## Appendix
+
+### Folder Structure:
+```
+framework/
+  core/          # Base classes and component functions
+  utils/         # Utilities for DOM, HTTP, lazy rendering, etc.
+  state.js       # State management
+  router.js      # Routing
+  render.js      # Renderer
+  README.md      # This documentation
+```
+
+---
+
+**Full usage documentation can be found in [`example/`](../example) or [`KMDB/`](../KMDB).**
