@@ -9,13 +9,6 @@ const genresList = createState([]);
 const actorsList = createState([]);
 const selectedMovieId = createState(null);
 const editingMovieId = createState(null);
-const editFormState = createState({
-  title: '',
-  releaseYear: '',
-  duration: '',
-  genres: [],
-  actors: []
-});
 const filterLetter = createState('All');
 const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
@@ -75,23 +68,11 @@ function namesToIds(names, dict) {
 
 function editMovie(movie) {
   editingMovieId.set(movie.id);
-
-  editFormState.set({
-    title: movie.title ?? '',
-    releaseYear: movie.releaseYear ?? '',
-    duration: movie.duration ?? '',
-    genres: namesToIds(movie.genres, genresList.value),
-    actors: namesToIds(movie.actors, actorsList.value)
-  });
   ensureVisible(movie.id);
 }
 
 function cancelEdit() {
   editingMovieId.set(null);
-}
-
-function handleInputChange(field, value) {
-  editFormState.set({ ...editFormState.value, [field]: value });
 }
 
 function renderCheckboxGroup(options, selectedIds, onChange) {
@@ -110,23 +91,79 @@ function renderCheckboxGroup(options, selectedIds, onChange) {
   );
 }
 
-function handleCheckboxChange(field, id, checked) {
-  id = Number(id);
-  const prev = Array.isArray(editFormState.value[field]) ? editFormState.value[field] : [];
-  let next;
-  if (checked) {
-    next = prev.includes(id) ? prev : [...prev, id];
-  } else {
-    next = prev.filter(v => v !== id);
-  }
-  editFormState.set({
-    ...editFormState.value,
-    [field]: [...next]
-  });
+// Основная форма редактирования, без глобального состояния на каждый ввод!
+function MovieEditForm({ movie, onSave, onCancel, genresList, actorsList }) {
+  // Инициализируем локальные переменные
+  let title = movie.title ?? '';
+  let releaseYear = movie.releaseYear ?? '';
+  let duration = movie.duration ?? '';
+  let genres = namesToIds(movie.genres, genresList);
+  let actors = namesToIds(movie.actors, actorsList);
+
+  return createElement('form',
+    {
+      onClick: e => e.stopPropagation(),
+      onSubmit: e => {
+        e.preventDefault();
+        onSave({
+          title,
+          releaseYear,
+          duration,
+          genres,
+          actors
+        });
+      }
+    },
+    createElement('input', {
+      type: 'text',
+      value: title,
+      placeholder: 'Title',
+      onInput: e => (title = e.target.value)
+    }),
+    createElement('input', {
+      type: 'number',
+      value: releaseYear,
+      placeholder: 'Release Year',
+      onInput: e => (releaseYear = e.target.value)
+    }),
+    createElement('input', {
+      type: 'number',
+      value: duration,
+      placeholder: 'Duration (min)',
+      onInput: e => (duration = e.target.value)
+    }),
+    createElement('label', { style: 'margin-top:0.5em; font-weight:bold;' }, 'Genres:'),
+    renderCheckboxGroup(
+      genresList || [],
+      genres,
+      (id, checked) => {
+        id = Number(id);
+        if (checked && !genres.includes(id)) genres.push(id);
+        if (!checked) genres = genres.filter(g => g !== id);
+      }
+    ),
+    createElement('label', { style: 'margin-top:0.5em; font-weight:bold;' }, 'Actors:'),
+    createElement('div', {
+      class: 'actor-checkbox-list'
+    },
+      renderCheckboxGroup(
+        [...(actorsList || [])].sort((a, b) => a.name.localeCompare(b.name)),
+        actors,
+        (id, checked) => {
+          id = Number(id);
+          if (checked && !actors.includes(id)) actors.push(id);
+          if (!checked) actors = actors.filter(a => a !== id);
+        }
+      )
+    ),
+    createElement('div', { class: 'edit-actions' },
+      createElement('button', { type: 'submit', class: 'save-btn' }, 'Save'),
+      createElement('button', { type: 'button', class: 'cancel-btn', onClick: onCancel }, 'Cancel')
+    )
+  );
 }
 
-async function saveEdit(id) {
-  const f = editFormState.value;
+async function saveEdit(id, f) {
   const updated = {
     title:       f.title,
     releaseYear: Number(f.releaseYear),
@@ -134,9 +171,6 @@ async function saveEdit(id) {
     genres:      (f.genres || []).map(i => ({ id: i })),
     actors:      (f.actors || []).map(i => ({ id: i }))
   };
-  console.log('PATCH data:', JSON.stringify(updated, null, 2));
-
-  //await httpRequest(`${API_BASE}/movies/${id}`,'PATCH',JSON.stringify(updated),{ 'Content-Type': 'application/json' });
   await httpRequest(`${API_BASE}/movies/${id}`,'PATCH',updated,{ 'Content-Type': 'application/json' });
   const resp = await httpRequest(`${API_BASE}/movies?page=0&size=1000`);
   movies.set(Array.isArray(resp.content) ? resp.content : resp);
@@ -174,47 +208,13 @@ export default function MovieList() {
         { class: `entity-details${isSel ? ' open' : ''}` },
         isSel && (isEd
           ? (genresReady && actorsReady
-              ? createElement('form',
-                  { onClick: e => e.stopPropagation(), onSubmit: e => { e.preventDefault(); saveEdit(movie.id); } },
-                  createElement('input', {
-                    type: 'text',
-                    value: editFormState.value.title,
-                    placeholder: 'Title',
-                    onInput: e => handleInputChange('title', e.target.value)
-                  }),
-                  createElement('input', {
-                    type: 'number',
-                    value: editFormState.value.releaseYear,
-                    placeholder: 'Release Year',
-                    onInput: e => handleInputChange('releaseYear', e.target.value)
-                  }),
-                  createElement('input', {
-                    type: 'number',
-                    value: editFormState.value.duration,
-                    placeholder: 'Duration (min)',
-                    onInput: e => handleInputChange('duration', e.target.value)
-                  }),
-                  createElement('label', { style: 'margin-top:0.5em; font-weight:bold;' }, 'Genres:'),
-                  renderCheckboxGroup(
-                    genresList.value || [],
-                    editFormState.value.genres,
-                    (id, checked) => handleCheckboxChange('genres', id, checked)
-                  ),
-                  createElement('label', { style: 'margin-top:0.5em; font-weight:bold;' }, 'Actors:'),
-                  createElement('div', {
-                    class: 'actor-checkbox-list'
-                  },
-                    renderCheckboxGroup(
-                      [...(actorsList.value || [])].sort((a, b) => a.name.localeCompare(b.name)),
-                      editFormState.value.actors,
-                      (id, checked) => handleCheckboxChange('actors', id, checked)
-                    )
-                  ),
-                  createElement('div', { class: 'edit-actions' },
-                    createElement('button', { type: 'submit', class: 'save-btn' }, 'Save'),
-                    createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
-                  )
-                )
+              ? MovieEditForm({
+                  movie,
+                  onSave: (formData) => saveEdit(movie.id, formData),
+                  onCancel: cancelEdit,
+                  genresList: genresList.value,
+                  actorsList: actorsList.value
+                })
               : createElement('div', {}, 'Loading dictionaries...')
             )
           : createElement('div', {},
