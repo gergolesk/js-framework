@@ -19,18 +19,10 @@ This project consists of a custom frontend framework written in vanilla JavaScri
 - Easy integration and extensibility
 - HTTP request support
 
-## Run the Example
 
-1. Open `example/index.html` via Live Server.
-2. Enjoy! 🎉
-
-## Run the KMDB App
+## Run the Example (KMDB App)
 
 0. Read `KMDB/README`
 1. Open `KMDB/index.html` via Live Server.
 2. Enjoy! 🎉
 
-## What's Next?
- 
-- Lazy rendering - IN PROGRESS
-- Performance improvements
