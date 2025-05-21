@@ -126,7 +126,9 @@ export default function GenreList() {
                 ? GenreEditForm(genre)
                 : createElement('div', {},
                     createElement('h4', {}, 'Movies:'),
-                    ...movies.map(m => createElement('div', {}, `${m.title} (${m.releaseYear})`))
+                    createElement('ol',  {class: 'styled-list'}, 
+                        ...movies.map(m => createElement('li', {class: 'styled-list-item'}, `${m.title} (${m.releaseYear})`)))
+                    
                 )
             )
         );

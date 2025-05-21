@@ -1,20 +1,29 @@
-import { createElement } from '../framework/utils/dom.js';
-import { createState } from '../framework/state.js';
+import { createElement } from './dom.js';
+import { createState } from '../state.js';
 
 export function LazyList({ items, renderItem, pageSize = 20 }) {
-  const visibleCount = createState(pageSize);
+  // контейнер для списка: высота рассчитывается от высоты вьюпорта
+  const container = createElement('div', {
+    class: 'lazy-list',
+    style: 'overflow-y: auto; height: calc(100vh - 200px);'
+  });
 
-  const onScroll = (e) => {
+  let loadedCount = 0;
+
+  function loadMore() {
+    const nextCount = Math.min(loadedCount + pageSize, items.length);
+    items.slice(loadedCount, nextCount).forEach(item => container.appendChild(renderItem(item)));
+    loadedCount = nextCount;
+  }
+
+  function onScroll(e) {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
-    if (scrollTop + clientHeight >= scrollHeight - 10) {
-      visibleCount.set(visibleCount.value + pageSize);
+    if (scrollTop + clientHeight >= scrollHeight - 10 && loadedCount < items.length) {
+      loadMore();
     }
-  };
+  }
 
-  return createElement('div', {
-    style: 'overflow-y: auto; max-height: 500px;',
-    onScroll
-  },
-    ...items.slice(0, visibleCount.value).map(renderItem)
-  );
+  container.addEventListener('scroll', onScroll);
+  loadMore();
+  return container;
 }
