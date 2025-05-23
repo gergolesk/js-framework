@@ -1,28 +1,99 @@
-# dot-js: Custom JavaScript Frontend Framework with Example App
+# Frontend Framework
 
-## About
+A minimalist JavaScript frontend framework for building web applications from scratch, with no dependencies.  
+This repository contains both the framework itself and a real-world example application.
 
-This project consists of a custom frontend framework written in vanilla JavaScript, along with an example application (ToDo App) demonstrating its capabilities.
+---
 
-## Structure
+## Repository Structure
 
-- `framework/` – the `dot-js` framework
-- `example/` – the ToDo application built with `dot-js`
+```
+.
+├── framework/    # The core framework (source code & documentation)
+├── KMDB/        # Example app built with the framework (demo project)
+└── README.md    # This file
+```
+
+---
+
+## Quick Start
+
+### 1. Clone the repository
+
+```bash
+git https://gitea.kood.tech/georgolesk/frontend-framework.git
+cd frontend-framework
+```
+
+### 2. Explore the Framework
+
+- The framework source code and documentation are in the [`framework/`](./framework) directory.
+
+### 3. Run the Example App
+
+You can open the example application (KMDB) in your browser:
+
+```bash
+cd KMDB
+# If you use VS Code, you can "Open with Live Server" on index.html
+# Or simply open index.html directly in your browser
+```
+
+---
 
 ## Features
 
-- Custom `createElement` API
-- Reactive state management
-- SPA routing
+- **Component-based UI**: Create reusable UI blocks.
+- **Reactive state management**: Synchronize data and UI seamlessly.
+- **Declarative event handling**: Bind events directly in components.
+- **Client-side routing**: Map URLs to pages/components.
+- **HTTP utilities**: Easy fetch and data interaction.
+- **Performance optimization**: Lazy rendering of large lists.
+- **No dependencies**: Works in any modern browser, zero setup.
+
+---
+
+## Documentation
+
+- **Framework Documentation:** [`framework/README.md`](./framework/README.md)
+- **Example App Documentation:** [`KMDB/README.md`](./KMDB/README.md)
+
+Documentation covers:
+- Installation and setup
+- Architecture overview
+- State management usage
+- Routing
 - Event handling
-- Example usage
-- Easy integration and extensibility
-- HTTP request support
+- HTTP utilities
+- Best practices
+- Bonus features
 
+---
 
-## Run the Example (KMDB App)
+## Example App (KMDB)
 
-0. Read `KMDB/README`
-1. Open `KMDB/index.html` via Live Server.
-2. Enjoy! 🎉
+**KMDB** is a demo application that showcases the full capabilities of the framework:
+- Uses state, routing, events, HTTP, and lazy rendering
+- Modular, easily extensible code
+- Clean separation of logic and UI
 
+You can use KMDB as a template for your own projects!
+
+---
+
+## Contribution
+
+Feel free to open issues and pull requests for suggestions or improvements.
+
+---
+
+## License
+
+MIT
+
+---
+
+## Related
+
+- For more usage examples, see the `KMDB/` directory.
+- Inspired by the simplicity of React, Vue, and Svelte, but designed from scratch for full understanding and control.
