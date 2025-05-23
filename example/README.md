@@ -25,10 +25,10 @@ You can use your own KMDB server, but proper operation is not guaranteed.
 2. Start a development server using a tool like Live Server (e.g., in VS Code).
 Or run a simple local server from the terminal, for example:
 
-Using python:
 
    ```bash
-   python -m http.server 5500
+   npm install -g http-server
+   http-server --port 5500
    ```
 
 
