@@ -11,10 +11,7 @@ import MovieList from './pages/movies.js';
 import ActorList from './pages/actors.js';
 import GenreList from './pages/genres.js';
 
-const actors = createState([]);
-const genres = createState([]);
-const movies = createState([]);
-
+// Define application routes and their corresponding components
 defineRoutes({
   '/': HomePage,
   '/actors': ActorList,
@@ -22,6 +19,9 @@ defineRoutes({
   '/movies': MovieList
 });
 
+/**
+ * Re-render the application in response to state changes
+ */
 function rerender() {
   const app = document.getElementById('app');
   if (app) {
@@ -29,43 +29,15 @@ function rerender() {
   }
 }
 
+// Subscribe rerender to all global state changes
 subscribe(rerender);
 
-/*
-document.addEventListener('DOMContentLoaded', () => {
-  const app = document.getElementById('app');
-  if (app) {
-    render(RouterView, app);
-  }
-});
-*/
-
+// Initial render on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', rerender);
 
-async function loadActors() {
-  const data = await httpRequest(`${API_BASE}/actors`);
-  actors.set(data);
-}
-
-async function loadGenres() {
-  const data = await httpRequest(`${API_BASE}/genres`);
-  genres.set(data);
-}
-
-async function loadMovies() {
-  const data = await httpRequest(`${API_BASE}/movies`);
-  const moviesList = data.content;
-  movies.set(moviesList);
-}
-
-onMount(() => {
-  loadActors();
-  loadGenres();
-  loadMovies();
-});
-
-// Страницы
-
+/**
+ * Home page component with navigation buttons
+ */
 function HomePage() {
   return createElement('div', { class: 'homepage' },
     createElement('h1', { class: 'homepage-title' }, '🎬 Movie App'),
@@ -92,6 +64,5 @@ function HomePage() {
     )
   );
 }
-
 
 export default HomePage;

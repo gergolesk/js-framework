@@ -4,15 +4,24 @@ import { createState } from '../../framework/state.js';
 import { httpRequest } from '../../framework/utils/http.js';
 import { LazyList } from '../../framework/utils/lazyList.js';
 
+// State for the list of movies
 const movies = createState([]);
+// State for the list of genres (dictionaries)
 const genresList = createState([]);
+// State for the list of actors (dictionaries)
 const actorsList = createState([]);
+// State for currently selected movie
 const selectedMovieId = createState(null);
+// State for the movie being edited
 const editingMovieId = createState(null);
+// State for active letter filter
 const filterLetter = createState('All');
+// Letters A–Z + "All"
 const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
-// Загрузка фильмов, жанров, актёров
+/**
+ * Fetch movies, genres, and actors dictionaries on load
+ */
 (async function fetchData() {
   const [moviesRes, genresRes, actorsRes] = await Promise.all([
     httpRequest(`${API_BASE}/movies?page=0&size=1000`),
@@ -24,6 +33,10 @@ const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) => String.fromChar
   actorsList.set(Array.isArray(actorsRes.content) ? actorsRes.content : actorsRes);
 })();
 
+/**
+ * Universal function: loads more pages if needed,
+ * then smoothly scrolls the desired movie element into view
+ */
 function ensureVisible(id) {
   setTimeout(() => {
     const selector = `.entity-item[data-movie-id="${id}"]`;
@@ -31,6 +44,7 @@ function ensureVisible(id) {
     const container = document.querySelector('.lazy-list');
     if (container && !el) {
       let prev;
+      // Keep loading more until the element appears
       do {
         prev = container.childElementCount;
         container.scrollTop = container.scrollHeight;
@@ -42,6 +56,9 @@ function ensureVisible(id) {
   });
 }
 
+/**
+ * Handles selecting/deselecting a movie and closes edit mode
+ */
 function toggleMovie(id) {
   const was = selectedMovieId.value === id;
   selectedMovieId.set(was ? null : id);
@@ -49,6 +66,9 @@ function toggleMovie(id) {
   if (!was) ensureVisible(id);
 }
 
+/**
+ * Deletes the movie after confirmation and refreshes the list
+ */
 async function deleteMovie(id) {
   if (!confirm('Delete this movie?')) return;
   await httpRequest(`${API_BASE}/movies/${id}`, 'DELETE');
@@ -56,6 +76,9 @@ async function deleteMovie(id) {
   movies.set(Array.isArray(resp.content) ? resp.content : resp);
 }
 
+/**
+ * Converts an array of names to an array of ids using the given dictionary
+ */
 function namesToIds(names, dict) {
   if (!Array.isArray(names) || !Array.isArray(dict)) return [];
   return names
@@ -66,15 +89,24 @@ function namesToIds(names, dict) {
     .filter(id => id !== null);
 }
 
+/**
+ * Enters edit mode for the movie and scrolls it into view
+ */
 function editMovie(movie) {
   editingMovieId.set(movie.id);
   ensureVisible(movie.id);
 }
 
+/**
+ * Cancels editing mode
+ */
 function cancelEdit() {
   editingMovieId.set(null);
 }
 
+/**
+ * Renders a group of checkboxes for genres or actors selection
+ */
 function renderCheckboxGroup(options, selectedIds, onChange) {
   const selectedNums = (selectedIds || []).map(Number);
   return createElement('div', { style: 'display:flex; flex-wrap:wrap; gap:1rem; margin:0.5rem 0;' },
@@ -91,9 +123,11 @@ function renderCheckboxGroup(options, selectedIds, onChange) {
   );
 }
 
-// Основная форма редактирования, без глобального состояния на каждый ввод!
+/**
+ * Main movie edit form, uses only local variables for form state (no global state on each input!)
+ */
 function MovieEditForm({ movie, onSave, onCancel, genresList, actorsList }) {
-  // Инициализируем локальные переменные
+  // Initialize local variables
   let title = movie.title ?? '';
   let releaseYear = movie.releaseYear ?? '';
   let duration = movie.duration ?? '';
@@ -163,6 +197,9 @@ function MovieEditForm({ movie, onSave, onCancel, genresList, actorsList }) {
   );
 }
 
+/**
+ * Saves the edited movie, sends PATCH request and updates the list, then scrolls to the movie
+ */
 async function saveEdit(id, f) {
   const updated = {
     title:       f.title,
@@ -178,11 +215,18 @@ async function saveEdit(id, f) {
   ensureVisible(id);
 }
 
+/**
+ * Main component rendering the movie list with filtering, edit, and view features
+ */
 export default function MovieList() {
+  // Filter movies by selected letter and sort alphabetically
   const filtered = movies.value
     .filter(m => filterLetter.value === 'All' || m.title[0].toUpperCase() === filterLetter.value)
     .sort((a, b) => a.title.localeCompare(b.title));
 
+  /**
+   * Renders a single movie item, including details, edit form, and actions
+   */
   function renderMovie(movie) {
     const isSel = selectedMovieId.value === movie.id;
     const isEd  = editingMovieId.value === movie.id;
@@ -227,10 +271,12 @@ export default function MovieList() {
     );
   }
 
+  // Show message if no movies found, otherwise render paginated lazy list
   const content = filtered.length
     ? LazyList({ items: filtered, renderItem: renderMovie, pageSize: 20 })
     : createElement('p', { class: 'no-movies' }, 'No movies found.');
 
+  // Main render of the component
   return createElement('div',
     { class: 'entity-list' },
     createElement('button',
@@ -238,6 +284,7 @@ export default function MovieList() {
       '← Back'
     ),
     createElement('h2', {}, 'Movies'),
+    // Alphabet navigation buttons for filtering
     createElement('div',
       { style: 'display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0;' },
       ...alphabet.map(letter =>

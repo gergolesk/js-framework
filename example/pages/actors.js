@@ -6,23 +6,32 @@ import { onMount } from '../../framework/utils/lifecycle.js';
 import { httpRequest } from '../../framework/utils/http.js';
 import { LazyList } from '../../framework/utils/lazyList.js';
 
+// State for the list of actors
 const actors = createState([]);
+// State for currently selected actor
 const selectedActorId = createState(null);
+// State for the actor being edited
 const editingActorId = createState(null);
-const actorMovies = createState({});  // { [actorId]: [movies] }
+// State for movies by actor id: { [actorId]: [movies] }
+const actorMovies = createState({});
+// State for active letter filter
 const filterLetter = createState('All');
 
-// буквы A–Z + “All”
+// Letters A–Z + "All"
 const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) =>
   String.fromCharCode(65 + i)
 )];
 
+// Fetch the actors list on component mount
 onMount(async () => {
   const response = await httpRequest(`${API_BASE}/actors`);
   actors.set(response);
 });
 
-// универсальная функция: докачивает страницы, а затем плавно скроллит нужный элемент
+/**
+ * Universal function: loads more pages if needed,
+ * then smoothly scrolls the desired element into view
+ */
 function ensureVisible(id) {
   requestAnimationFrame(() => {
     const selector = `.entity-item[data-actor-id="${id}"]`;
@@ -31,7 +40,7 @@ function ensureVisible(id) {
 
     if (container && !el) {
       let prevCount;
-      // докачиваем, пока элемент не появится
+      // Keep loading more until the element appears
       do {
         prevCount = container.childElementCount;
         container.scrollTop = container.scrollHeight;
@@ -47,20 +56,28 @@ function ensureVisible(id) {
   });
 }
 
+/**
+ * Handles selecting/deselecting an actor, loading movies if needed
+ */
 async function toggleActor(id) {
   const wasSelected = selectedActorId.value === id;
   selectedActorId.set(wasSelected ? null : id);
 
+  // Fetch movies for actor if not already loaded
   if (!wasSelected && !actorMovies.value[id]) {
     const data = await httpRequest(`${API_BASE}/movies?actor=${id}`);
     actorMovies.set({ ...actorMovies.value, [id]: data.content || [] });
   }
 
+  // Scroll the selected actor into view
   if (!wasSelected) {
     ensureVisible(id);
   }
 }
 
+/**
+ * Deletes the actor after confirmation and refreshes the list
+ */
 async function deleteActor(actorId) {
   if (!confirm('Are you sure you want to delete this actor?')) return;
 
@@ -69,26 +86,38 @@ async function deleteActor(actorId) {
   actors.set(response);
 }
 
+/**
+ * Enters edit mode for the actor, scrolling it into view
+ */
 function editActor(actor) {
   editingActorId.set(actor.id);
-  // прокручиваем карточку в момент включения режима редактирования
+  // Scroll card when enabling edit mode
   ensureVisible(actor.id);
 }
 
+/**
+ * Saves the actor changes and refreshes the list, then scrolls into view
+ */
 async function saveEdit(id, formData) {
   await httpRequest(`${API_BASE}/actors/${id}`, 'PATCH', formData);
   editingActorId.set(null);
 
-  // обновляем весь список (перерендерит) и затем скроллим
+  // Refresh the entire list (re-render) and scroll to updated item
   const response = await httpRequest(`${API_BASE}/actors`);
   actors.set(response);
   ensureVisible(id);
 }
 
+/**
+ * Cancels editing mode
+ */
 function cancelEdit() {
   editingActorId.set(null);
 }
 
+/**
+ * Edit form component for an actor
+ */
 function ActorEditForm(actor) {
   let name = actor.name || '';
   let birthDate = actor.birthDate || '';
@@ -124,7 +153,11 @@ function ActorEditForm(actor) {
   );
 }
 
+/**
+ * Main component rendering the actor list with filtering and edit features
+ */
 export default function ActorList() {
+  // Filter actors by selected letter and sort alphabetically
   const filteredActors = actors.value
     .filter(a =>
       filterLetter.value === 'All' ||
@@ -132,12 +165,14 @@ export default function ActorList() {
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  // Button to go back in navigation
   const backButton = createElement(
     'button',
     { class: 'back-btn', onClick: () => history.back() },
     '← Back'
   );
 
+  // Alphabet navigation buttons for filtering
   const alphabetNav = createElement(
     'div',
     {
@@ -156,6 +191,9 @@ export default function ActorList() {
     )
   );
 
+  /**
+   * Renders a single actor item, including details, edit form, and actions
+   */
   function renderActor(actor) {
     const isSelected = selectedActorId.value === actor.id;
     const isEditing = editingActorId.value === actor.id;
@@ -230,10 +268,12 @@ export default function ActorList() {
     );
   }
 
+  // Show message if no actors found, otherwise render paginated lazy list
   const content = filteredActors.length === 0
     ? createElement('p', { class: 'no-actors' }, 'No actors found.')
     : LazyList({ items: filteredActors, renderItem: renderActor, pageSize: 20 });
 
+  // Main render of the component
   return createElement(
     'div',
     { class: 'entity-list' },
