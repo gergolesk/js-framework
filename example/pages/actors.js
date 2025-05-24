@@ -90,9 +90,8 @@ async function deleteActor(actorId) {
  * Enters edit mode for the actor, scrolling it into view
  */
 function editActor(actor) {
+  selectedActorId.set(actor.id); // Deselect if already selected
   editingActorId.set(actor.id);
-  // Scroll card when enabling edit mode
-  ensureVisible(actor.id);
 }
 
 /**
@@ -198,7 +197,6 @@ export default function ActorList() {
     const isSelected = selectedActorId.value === actor.id;
     const isEditing = editingActorId.value === actor.id;
     const moviesList = actorMovies.value[actor.id] || [];
-
     return createElement('div',
       {
         class: 'entity-item',
@@ -215,25 +213,25 @@ export default function ActorList() {
           },
           isEditing
             ? createElement('button',
-                {
-                  class: 'save-btn',
-                  onClick: e => {
-                    e.stopPropagation();
-                    saveEdit(actor.id, { name: actor.name, birthDate: actor.birthDate });
-                  }
-                },
-                'Save'
-              )
+              {
+                class: 'save-btn',
+                onClick: e => {
+                  e.stopPropagation();
+                  saveEdit(actor.id, { name: actor.name, birthDate: actor.birthDate });
+                }
+              },
+              'Save'
+            )
             : createElement('button',
-                {
-                  class: 'edit-btn',
-                  onClick: e => {
-                    e.stopPropagation();
-                    editActor(actor);
-                  }
-                },
-                'Edit'
-              ),
+              {
+                class: 'edit-btn',
+                onClick: e => {
+                  e.stopPropagation();
+                  editActor(actor);
+                }
+              },
+              'Edit'
+            ),
           createElement('button',
             {
               class: 'delete-btn',
@@ -252,17 +250,17 @@ export default function ActorList() {
           isEditing
             ? ActorEditForm(actor)
             : createElement('div',
-                {},
-                createElement('p', {}, `Birthdate: ${actor.birthDate}`),
-                createElement('h4', {}, 'Movies:'),
-                createElement('ol', { class: 'styled-list' },
-                  ...moviesList.map(m =>
-                    createElement('li', { class: 'styled-list-item' },
-                      `${m.title} (${m.releaseYear})`
-                    )
+              {},
+              createElement('p', {}, `Birthdate: ${actor.birthDate}`),
+              createElement('h4', {}, 'Movies:'),
+              createElement('ol', { class: 'styled-list' },
+                ...moviesList.map(m =>
+                  createElement('li', { class: 'styled-list-item' },
+                    `${m.title} (${m.releaseYear})`
                   )
                 )
               )
+            )
         )
       )
     );
