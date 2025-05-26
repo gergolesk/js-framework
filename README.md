@@ -10,7 +10,7 @@ This repository contains both the framework itself and a real-world example appl
 ```
 .
 ├── framework/    # The core framework (source code & documentation)
-├── KMDB/        # Example app built with the framework (demo project)
+├── example/        # Example app built with the framework (demo project)
 └── README.md    # This file
 ```
 
@@ -34,9 +34,8 @@ cd frontend-framework
 You can open the example application (KMDB) in your browser:
 
 ```bash
-cd KMDB
+cd example
 # If you use VS Code, you can "Open with Live Server" on index.html
-# Or simply open index.html directly in your browser
 ```
 
 ---
@@ -56,7 +55,7 @@ cd KMDB
 ## Documentation
 
 - **Framework Documentation:** [`framework/README.md`](./framework/README.md)
-- **Example App Documentation:** [`KMDB/README.md`](./KMDB/README.md)
+- **Example App Documentation:** [`example/README.md`](./example/README.md)
 
 Documentation covers:
 - Installation and setup
@@ -95,5 +94,4 @@ MIT
 
 ## Related
 
-- For more usage examples, see the `KMDB/` directory.
 - Inspired by the simplicity of React, Vue, and Svelte, but designed from scratch for full understanding and control.
