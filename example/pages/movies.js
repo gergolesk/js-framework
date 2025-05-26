@@ -1,8 +1,10 @@
 import { API_BASE, PAGE_SIZE } from '../config.js';
+
 import { createElement } from '../../framework/utils/dom.js';
 import { createState } from '../../framework/state.js';
 import { httpRequest } from '../../framework/utils/http.js';
 import { LazyList } from '../../framework/utils/lazyList.js';
+import { createComponent } from '../../framework/core/component.js';
 
 // State for the list of movies
 const movies = createState([]);
@@ -235,10 +237,8 @@ async function createMovie(f) {
   movies.set(Array.isArray(resp.content) ? resp.content : resp);
 }
 
-/**
- * Main component rendering the movie list with filtering, edit, add, and view features
- */
-export default function MovieList() {
+// ===== Основная функция рендера =====
+function renderMovieList() {
   // Filter movies by selected letter and sort alphabetically
   const filtered = movies.value
     .filter(m => filterLetter.value === 'All' || m.title[0].toUpperCase() === filterLetter.value)
@@ -343,3 +343,6 @@ export default function MovieList() {
     content
   );
 }
+
+// Exporting a reactive component
+export default (props = {}) => createComponent(renderMovieList, props);

@@ -4,6 +4,7 @@ import { createElement } from '../../framework/utils/dom.js';
 import { createState } from '../../framework/state.js';
 import { onMount } from '../../framework/utils/lifecycle.js';
 import { httpRequest } from '../../framework/utils/http.js';
+import { createComponent } from '../../framework/core/component.js';
 
 // State for the list of genres
 const genres = createState([]);
@@ -15,7 +16,6 @@ const editingGenreId = createState(null);
 const genreMovies = createState({});
 // State for genre adding
 const creatingGenre = createState(null);
-
 
 // Fetch the genres list on component mount
 onMount(async () => {
@@ -47,7 +47,6 @@ async function createGenre(formData) {
     genres.set(response);
 }
 
-
 /**
  * Deletes the genre after confirmation and refreshes the list
  */
@@ -64,7 +63,7 @@ async function deleteGenre(genreId) {
  * Enters edit mode for the genre
  */
 function editGenre(genre) {
-    selectedGenreId.set(genre.id); // Deselect if already selected
+    selectedGenreId.set(genre.id);
     editingGenreId.set(genre.id);
 }
 
@@ -88,34 +87,6 @@ function cancelEdit() {
 /**
  * Edit form component for a genre
  */
-/*
-function GenreEditForm(genre) {
-    // Local variables live as long as the form exists
-    let name = genre.name || '';
-
-    const nameInput = createElement('input', {
-        name: 'name',
-        type: 'text',
-        placeholder: 'Name',
-        value: name,
-        onInput: e => name = e.target.value
-    });
-
-    return createElement('form', {
-        onClick: e => e.stopPropagation(),
-        onSubmit: e => {
-            e.preventDefault();
-            saveEdit(genre.id, {
-                name
-            });
-        }
-    },
-        nameInput,
-        createElement('button', { class: 'save-btn', type: 'submit' }, 'Save'),
-        createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
-    );
-}
-    */
 function GenreEditForm(genre = {}, { onSave, onCancel }) {
     let name = genre.name || '';
 
@@ -140,14 +111,9 @@ function GenreEditForm(genre = {}, { onSave, onCancel }) {
     );
 }
 
-
-/**
- * Main component rendering the genre list with edit and movie view features
- */
-export default function GenreList() {
-    //console.log('Rendering GenreList, selectedGenreId =', selectedGenreId.value);
-
-    // Button to go back in navigation
+// === Главная реактивная функция рендера ===
+function renderGenreList() {
+    // Кнопка "назад"
     const backButton = createElement('button', {
         class: 'back-btn',
         style: 'margin-bottom: 1rem;',
@@ -173,7 +139,7 @@ export default function GenreList() {
 
     const sortedGenres = [...genres.value].sort((a, b) => a.name.localeCompare(b.name));
 
-    // Render the genre list
+    // Рендер списка жанров
     return createElement('div', { class: 'entity-list' },
         backButton,
         createElement('h2', {}, 'Genres'),
@@ -211,7 +177,7 @@ export default function GenreList() {
                     )
                 ),
                 // Show movies and/or edit form when selected
-                isSelected && createElement('div', { class: 'entity-details.open' },
+                isSelected && createElement('div', { class: 'entity-details open' },
                     isEditing
                         ? GenreEditForm(genre, {
                             onSave: data => saveEdit(genre.id, data),
@@ -229,3 +195,6 @@ export default function GenreList() {
         createElement('div', { style: 'margin-top: 2rem;' }, backButton)
     );
 }
+
+// Exporting a reactive component
+export default (props = {}) => createComponent(renderGenreList, props);

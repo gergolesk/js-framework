@@ -1,10 +1,10 @@
 import { API_BASE, PAGE_SIZE } from '../config.js';
-
 import { createElement } from '../../framework/utils/dom.js';
 import { createState } from '../../framework/state.js';
 import { onMount } from '../../framework/utils/lifecycle.js';
 import { httpRequest } from '../../framework/utils/http.js';
 import { LazyList } from '../../framework/utils/lazyList.js';
+import { createComponent } from '../../framework/core/component.js';
 
 // State for the list of actors
 const actors = createState([]);
@@ -169,9 +169,9 @@ function ActorEditForm(actor = {}, { onSave, onCancel }) {
 
 
 /**
- * Main component rendering the actor list with filtering and edit features
+ * Main rendering function for the actor list with filtering and edit features
  */
-export default function ActorList() {
+function renderActorList() {
   // Filter actors by selected letter and sort alphabetically
   const filteredActors = actors.value
     .filter(a =>
@@ -317,3 +317,6 @@ export default function ActorList() {
     content
   );
 }
+
+// Exporting a reactive component
+export default (props = {}) => createComponent(renderActorList, props);
