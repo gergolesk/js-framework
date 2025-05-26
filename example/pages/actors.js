@@ -1,4 +1,4 @@
-import { API_BASE } from '../config.js';
+import { API_BASE, PAGE_SIZE } from '../config.js';
 
 import { createElement } from '../../framework/utils/dom.js';
 import { createState } from '../../framework/state.js';
@@ -16,6 +16,8 @@ const editingActorId = createState(null);
 const actorMovies = createState({});
 // State for active letter filter
 const filterLetter = createState('All');
+// State for adding an actor
+const creatingActor = createState(null);
 
 // Letters A–Z + "All"
 const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) =>
@@ -75,6 +77,19 @@ async function toggleActor(id) {
   }
 }
 
+/*
+  Creates an actor
+*/
+async function createActor(formData) {
+  await httpRequest(`${API_BASE}/actors`, 'POST', formData);
+  creatingActor.set(false);
+
+  // Обновить список актёров
+  const response = await httpRequest(`${API_BASE}/actors`);
+  actors.set(response);
+}
+
+
 /**
  * Deletes the actor after confirmation and refreshes the list
  */
@@ -117,7 +132,7 @@ function cancelEdit() {
 /**
  * Edit form component for an actor
  */
-function ActorEditForm(actor) {
+function ActorEditForm(actor = {}, { onSave, onCancel }) {
   let name = actor.name || '';
   let birthDate = actor.birthDate || '';
 
@@ -142,15 +157,16 @@ function ActorEditForm(actor) {
       onClick: e => e.stopPropagation(),
       onSubmit: e => {
         e.preventDefault();
-        saveEdit(actor.id, { name, birthDate });
+        onSave({ name, birthDate });
       }
     },
     nameInput,
     birthDateInput,
     createElement('button', { class: 'save-btn', type: 'submit' }, 'Save'),
-    createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
+    createElement('button', { type: 'button', class: 'cancel-btn', onClick: onCancel }, 'Cancel')
   );
 }
+
 
 /**
  * Main component rendering the actor list with filtering and edit features
@@ -170,6 +186,24 @@ export default function ActorList() {
     { class: 'back-btn', onClick: () => history.back() },
     '← Back'
   );
+
+  //Add Actor Button
+  const addActorButton = createElement(
+    'button',
+    {
+      class: 'add-btn',
+      onClick: () => creatingActor.set(true),
+      style: 'margin-bottom: 1rem'
+    },
+    '+ Add Actor'
+  );
+
+  const createForm = creatingActor.value
+    ? ActorEditForm({}, { 
+        onSave: createActor,
+        onCancel: () => creatingActor.set(false)
+      })
+    : null;
 
   // Alphabet navigation buttons for filtering
   const alphabetNav = createElement(
@@ -248,7 +282,7 @@ export default function ActorList() {
         { class: `entity-details${isSelected ? ' open' : ''}` },
         isSelected && (
           isEditing
-            ? ActorEditForm(actor)
+            ? ActorEditForm(actor, {onSave: data => saveEdit(actor.id, data),onCancel: cancelEdit})
             : createElement('div',
               {},
               createElement('p', {}, `Birthdate: ${actor.birthDate}`),
@@ -269,7 +303,7 @@ export default function ActorList() {
   // Show message if no actors found, otherwise render paginated lazy list
   const content = filteredActors.length === 0
     ? createElement('p', { class: 'no-actors' }, 'No actors found.')
-    : LazyList({ items: filteredActors, renderItem: renderActor, pageSize: 20 });
+    : LazyList({ items: filteredActors, renderItem: renderActor, pageSize: PAGE_SIZE });
 
   // Main render of the component
   return createElement(
@@ -277,6 +311,8 @@ export default function ActorList() {
     { class: 'entity-list' },
     backButton,
     createElement('h2', {}, 'Actors'),
+    addActorButton,
+    createForm,
     alphabetNav,
     content
   );

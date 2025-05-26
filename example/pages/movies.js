@@ -1,4 +1,4 @@
-import { API_BASE } from '../config.js';
+import { API_BASE, PAGE_SIZE } from '../config.js';
 import { createElement } from '../../framework/utils/dom.js';
 import { createState } from '../../framework/state.js';
 import { httpRequest } from '../../framework/utils/http.js';
@@ -273,7 +273,7 @@ export default function MovieList() {
 
   // Show message if no movies found, otherwise render paginated lazy list
   const content = filtered.length
-    ? LazyList({ items: filtered, renderItem: renderMovie, pageSize: 20 })
+    ? LazyList({ items: filtered, renderItem: renderMovie, pageSize: PAGE_SIZE })
     : createElement('p', { class: 'no-movies' }, 'No movies found.');
 
   // Main render of the component
