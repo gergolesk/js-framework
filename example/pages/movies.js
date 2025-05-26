@@ -16,6 +16,9 @@ const selectedMovieId = createState(null);
 const editingMovieId = createState(null);
 // State for active letter filter
 const filterLetter = createState('All');
+// State for creating
+const creatingMovie = createState(false);
+
 // Letters A–Z + "All"
 const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
@@ -24,9 +27,9 @@ const alphabet = ['All', ...Array.from({ length: 26 }, (_, i) => String.fromChar
  */
 (async function fetchData() {
   const [moviesRes, genresRes, actorsRes] = await Promise.all([
-    httpRequest(`${API_BASE}/movies?page=0&size=1000`),
-    httpRequest(`${API_BASE}/genres?page=0&size=1000`),
-    httpRequest(`${API_BASE}/actors?page=0&size=1000`)
+    httpRequest(`${API_BASE}/movies?page=0&size=9999`),
+    httpRequest(`${API_BASE}/genres?page=0&size=9999`),
+    httpRequest(`${API_BASE}/actors?page=0&size=9999`)
   ]);
   movies.set(Array.isArray(moviesRes.content) ? moviesRes.content : moviesRes);
   genresList.set(Array.isArray(genresRes.content) ? genresRes.content : genresRes);
@@ -72,7 +75,7 @@ function toggleMovie(id) {
 async function deleteMovie(id) {
   if (!confirm('Delete this movie?')) return;
   await httpRequest(`${API_BASE}/movies/${id}`, 'DELETE');
-  const resp = await httpRequest(`${API_BASE}/movies?page=0&size=1000`);
+  const resp = await httpRequest(`${API_BASE}/movies?page=0&size=9999`);
   movies.set(Array.isArray(resp.content) ? resp.content : resp);
 }
 
@@ -209,20 +212,57 @@ async function saveEdit(id, f) {
     actors:      (f.actors || []).map(i => ({ id: i }))
   };
   await httpRequest(`${API_BASE}/movies/${id}`,'PATCH',updated,{ 'Content-Type': 'application/json' });
-  const resp = await httpRequest(`${API_BASE}/movies?page=0&size=1000`);
+  const resp = await httpRequest(`${API_BASE}/movies?page=0&size=9999`);
   movies.set(Array.isArray(resp.content) ? resp.content : resp);
   editingMovieId.set(null);
   ensureVisible(id);
 }
 
 /**
- * Main component rendering the movie list with filtering, edit, and view features
+ * Создаёт новый фильм и обновляет список
+ */
+async function createMovie(f) {
+  const newMovie = {
+    title:       f.title,
+    releaseYear: Number(f.releaseYear),
+    duration:    Number(f.duration),
+    genres:      (f.genres || []).map(i => ({ id: i })),
+    actors:      (f.actors || []).map(i => ({ id: i }))
+  };
+  await httpRequest(`${API_BASE}/movies`, 'POST', newMovie, { 'Content-Type': 'application/json' });
+  creatingMovie.set(false);
+  const resp = await httpRequest(`${API_BASE}/movies?page=0&size=9999`);
+  movies.set(Array.isArray(resp.content) ? resp.content : resp);
+}
+
+/**
+ * Main component rendering the movie list with filtering, edit, add, and view features
  */
 export default function MovieList() {
   // Filter movies by selected letter and sort alphabetically
   const filtered = movies.value
     .filter(m => filterLetter.value === 'All' || m.title[0].toUpperCase() === filterLetter.value)
     .sort((a, b) => a.title.localeCompare(b.title));
+
+  const addMovieButton = createElement(
+    'button',
+    {
+      class: 'add-btn accent-btn',
+      style: 'margin-bottom: 1rem',
+      onClick: () => creatingMovie.set(true)
+    },
+    '+ Add Movie'
+  );
+
+  const createForm = creatingMovie.value && Array.isArray(genresList.value) && Array.isArray(actorsList.value)
+    ? MovieEditForm({
+        movie: {},
+        onSave: createMovie,
+        onCancel: () => creatingMovie.set(false),
+        genresList: genresList.value,
+        actorsList: actorsList.value
+      })
+    : null;
 
   /**
    * Renders a single movie item, including details, edit form, and actions
@@ -233,9 +273,10 @@ export default function MovieList() {
     const genresReady = Array.isArray(genresList.value) && genresList.value.length > 0;
     const actorsReady = Array.isArray(actorsList.value) && actorsList.value.length > 0;
 
-    const showNames = arr => Array.isArray(arr) && arr.length
-      ? arr.join(', ')
-      : 'None';
+    const showNames = arr =>
+      Array.isArray(arr) && arr.length
+        ? arr.slice().sort((a, b) => a.localeCompare(b)).join(', ')
+        : 'None';
 
     return createElement('div',
       { class: 'entity-item', 'data-movie-id': movie.id, onClick: () => toggleMovie(movie.id) },
@@ -284,6 +325,8 @@ export default function MovieList() {
       '← Back'
     ),
     createElement('h2', {}, 'Movies'),
+    addMovieButton,
+    createForm,
     // Alphabet navigation buttons for filtering
     createElement('div',
       { style: 'display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0;' },
