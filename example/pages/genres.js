@@ -111,9 +111,9 @@ function GenreEditForm(genre = {}, { onSave, onCancel }) {
     );
 }
 
-// === Главная реактивная функция рендера ===
+// Main reactive render function
 function renderGenreList() {
-    // Кнопка "назад"
+    // "Back" button
     const backButton = createElement('button', {
         class: 'back-btn',
         style: 'margin-bottom: 1rem;',
@@ -139,7 +139,7 @@ function renderGenreList() {
 
     const sortedGenres = [...genres.value].sort((a, b) => a.name.localeCompare(b.name));
 
-    // Рендер списка жанров
+    // Render of genre list
     return createElement('div', { class: 'entity-list' },
         backButton,
         createElement('h2', {}, 'Genres'),

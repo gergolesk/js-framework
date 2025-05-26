@@ -221,7 +221,7 @@ async function saveEdit(id, f) {
 }
 
 /**
- * Создаёт новый фильм и обновляет список
+ * Creates a new movie and updates the list
  */
 async function createMovie(f) {
   const newMovie = {
@@ -237,7 +237,7 @@ async function createMovie(f) {
   movies.set(Array.isArray(resp.content) ? resp.content : resp);
 }
 
-// ===== Основная функция рендера =====
+// The main function of the renderer
 function renderMovieList() {
   // Filter movies by selected letter and sort alphabetically
   const filtered = movies.value

@@ -12,5 +12,5 @@ export function render(componentFn, container) {
   container.innerHTML = '';
   const el = componentFn();
   container.appendChild(el);
-  runMountCallbacks(); // добавляем вызов
+  runMountCallbacks(); // add a call
 }
