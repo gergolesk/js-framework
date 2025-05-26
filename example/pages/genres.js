@@ -13,6 +13,9 @@ const selectedGenreId = createState(null);
 const editingGenreId = createState(null);
 // State for movies by genre id: { [genreId]: [movies] }
 const genreMovies = createState({});
+// State for genre adding
+const creatingGenre = createState(null);
+
 
 // Fetch the genres list on component mount
 onMount(async () => {
@@ -33,6 +36,17 @@ async function toggleGenre(id) {
         genreMovies.set({ ...genreMovies.value, [id]: data.content || [] });
     }
 }
+
+/*
+    Adds a genre
+*/
+async function createGenre(formData) {
+    await httpRequest(`${API_BASE}/genres`, 'POST', formData);
+    creatingGenre.set(false);
+    const response = await httpRequest(`${API_BASE}/genres`);
+    genres.set(response);
+}
+
 
 /**
  * Deletes the genre after confirmation and refreshes the list
@@ -74,6 +88,7 @@ function cancelEdit() {
 /**
  * Edit form component for a genre
  */
+/*
 function GenreEditForm(genre) {
     // Local variables live as long as the form exists
     let name = genre.name || '';
@@ -100,6 +115,31 @@ function GenreEditForm(genre) {
         createElement('button', { type: 'button', class: 'cancel-btn', onClick: cancelEdit }, 'Cancel')
     );
 }
+    */
+function GenreEditForm(genre = {}, { onSave, onCancel }) {
+    let name = genre.name || '';
+
+    const nameInput = createElement('input', {
+        name: 'name',
+        type: 'text',
+        placeholder: 'Name',
+        value: name,
+        onInput: e => name = e.target.value
+    });
+
+    return createElement('form', {
+        onClick: e => e.stopPropagation(),
+        onSubmit: e => {
+            e.preventDefault();
+            onSave({ name });
+        }
+    },
+        nameInput,
+        createElement('button', { class: 'save-btn', type: 'submit' }, 'Save'),
+        createElement('button', { type: 'button', class: 'cancel-btn', onClick: onCancel }, 'Cancel')
+    );
+}
+
 
 /**
  * Main component rendering the genre list with edit and movie view features
@@ -114,11 +154,32 @@ export default function GenreList() {
         onClick: () => history.back()
     }, '← Back');
 
+    const addGenreButton = createElement(
+        'button',
+        {
+            class: 'add-btn accent-btn',
+            onClick: () => creatingGenre.set(true),
+            style: 'margin-bottom: 1rem'
+        },
+        '+ Add Genre'
+    );
+
+    const createForm = creatingGenre.value
+        ? GenreEditForm({}, {
+            onSave: createGenre,
+            onCancel: () => creatingGenre.set(false)
+        })
+        : null;
+
+    const sortedGenres = [...genres.value].sort((a, b) => a.name.localeCompare(b.name));
+
     // Render the genre list
     return createElement('div', { class: 'entity-list' },
         backButton,
         createElement('h2', {}, 'Genres'),
-        ...genres.value.map(genre => {
+        addGenreButton,
+        createForm,
+        ...sortedGenres.map(genre => {
             const isSelected = selectedGenreId.value === genre.id;
             const isEditing = editingGenreId.value === genre.id;
             const movies = genreMovies.value[genre.id] || [];
@@ -136,18 +197,13 @@ export default function GenreList() {
                             toggleGenre(genre.id)
                         }
                     },
-                        isEditing
-                            ? createElement('button', {
-                                class: 'save-btn',
-                                onClick: (e) => { e.stopPropagation(); saveEdit(genre.id); }
-                            }, 'Save')
-                            : createElement('button', {
-                                class: 'edit-btn',
-                                onClick: (e) => {
-                                    e.stopPropagation();
-                                    editGenre(genre);
-                                }
-                            }, 'Edit'),
+                        createElement('button', {
+                            class: 'edit-btn',
+                            onClick: (e) => {
+                                e.stopPropagation();
+                                editGenre(genre);
+                            }
+                        }, 'Edit'),
                         createElement('button', {
                             class: 'delete-btn',
                             onClick: (e) => { e.stopPropagation(); deleteGenre(genre.id); }
@@ -157,7 +213,10 @@ export default function GenreList() {
                 // Show movies and/or edit form when selected
                 isSelected && createElement('div', { class: 'entity-details.open' },
                     isEditing
-                        ? GenreEditForm(genre)
+                        ? GenreEditForm(genre, {
+                            onSave: data => saveEdit(genre.id, data),
+                            onCancel: cancelEdit
+                        })
                         : createElement('div', {},
                             createElement('h4', {}, 'Movies:'),
                             createElement('ol', { class: 'styled-list' },
