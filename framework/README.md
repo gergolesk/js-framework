@@ -27,11 +27,42 @@
 The framework requires no npm installation.  
 Simply copy the `framework/` folder into your project and import the needed modules.
 
-**Example:**
+**Example index.html:**
 ```html
-<script type="module" src="./framework/render.js"></script>
-<script type="module" src="./framework/state.js"></script>
-<script type="module" src="./app.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>JS-Frontend Framework</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="./app.js"></script>
+  <script type="module" src="../framework/utils/lazyList.js"></script>
+  <script type="module" src="../framework/utils/http.js"></script>
+</body>
+
+</html>
+```
+
+**Example app.js:**
+```js
+import { defineRoutes, RouterView } from '../framework/router.js';
+import { render } from '../framework/render.js';
+import Yourpage from './yourpage.js';
+
+defineRoutes({
+  '/': Yourpage,
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const app = document.getElementById('app');
+  if (app) {
+    render(RouterView, app);
+  }
+});
 ```
 
 ---
@@ -202,12 +233,6 @@ import { LazyList } from './framework/utils/lazyList.js';
 
 ---
 
-## License
-
-MIT
-
----
-
 ## Appendix
 
 ### Folder Structure:
@@ -223,4 +248,4 @@ framework/
 
 ---
 
-**Full usage documentation can be found in [`example/`](../example) or [`KMDB/`](../KMDB).**
+**Full usage documentation can be found in [`example/`](../example).**
